@@ -54,6 +54,15 @@ $env:SERVICEFORGE_CONNECTION_STRING = "Server=<approved-server>;Database=Service
 For SQL authentication, keep the user and password in the local environment or secret manager; do
 not place them in source control.
 
+### MediatR licensing notice
+
+The application uses MediatR 14.2.0. Under the publisher's published terms, internal development
+and testing are distinct from production use; no license key is required for the development and
+testing workflow described here. Production deployment requires a separate licensing decision under
+the publisher's current terms. This repository does not suppress the MediatR warning or embed a
+license key. Review the [publisher's license agreement](https://luckypennysoftware.com/license)
+before production use.
+
 ## 4. Apply the migration and seed data
 
 The API does not automatically migrate or seed at startup. Apply the reviewed Code First migration:
@@ -97,7 +106,8 @@ The following PowerShell block computes the next weekday at 10:00 in seeded Deal
 `Asia/Bangkok` timezone, avoiding a hardcoded date that can expire:
 
 ```powershell
-$zone = [TimeZoneInfo]::FindSystemTimeZoneById("Asia/Bangkok")
+# Windows PowerShell uses the Windows ID for the seeded Asia/Bangkok (UTC+07:00) timezone.
+$zone = [TimeZoneInfo]::FindSystemTimeZoneById("SE Asia Standard Time")
 $localDate = [TimeZoneInfo]::ConvertTimeFromUtc([DateTime]::UtcNow, $zone).Date.AddDays(1)
 while ($localDate.DayOfWeek -in @([DayOfWeek]::Saturday, [DayOfWeek]::Sunday)) {
     $localDate = $localDate.AddDays(1)
