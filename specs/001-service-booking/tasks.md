@@ -11,7 +11,7 @@ description: "Approved implementation task breakdown for ServiceForge P0 service
 and ADRs 001–007.
 
 **Scope**: Backend-only P0 automotive service booking. T005 records the authorization gate; the
-current user authorization covers the T026-T027 orchestration and concurrency-test batch.
+current user authorization covers the T028-T031 HTTP API batch.
 
 **Task format**: Every task includes its ID, dependencies, relevant paths or artifacts, verification
 criteria, and explicit P0 boundary.
@@ -72,10 +72,10 @@ criteria, and explicit P0 boundary.
 
 **Purpose**: Expose and verify only the approved P0 REST endpoints.
 
-- [ ] T028 Implement `POST /api/appointments` in `src/ServiceForge.Api/Endpoints/Appointments/` or the approved API controller location; depends on T026 and T027; verify required `Idempotency-Key`, request binding, 201 Created, Location, Confirmed/Assigned representation, assigned IDs, and UTC timestamps; Coverage: US1/US5; P0 boundary: no authentication/JWT and no additional write endpoint.
-- [ ] T029 Implement `GET /api/appointments/{id}` in `src/ServiceForge.Api/Endpoints/Appointments/`; depends on T010, T011, and T026; verify 200 representation for an existing appointment and 404 `RESOURCE_NOT_FOUND` when absent; Coverage: US6; P0 boundary: no cancellation, completion, or rescheduling endpoint.
-- [ ] T030 Implement paginated `GET /api/customers/{id}/vehicles`, `GET /api/dealerships`, and `GET /api/service-types` in `src/ServiceForge.Api/Endpoints/ReferenceData/` and `src/ServiceForge.Application/ReferenceData/`; depends on T010, T011, and T014; verify page default 1, pageSize default 20/max 100, stable ascending ID ordering, database-level offset pagination, and `items/page/pageSize/totalCount/totalPages`; Coverage: US6; P0 boundary: read-only reference endpoints only.
-- [ ] T031 Implement RFC 9457 Problem Details, Swagger/OpenAPI, and HTTP contract verification in `src/ServiceForge.Api/ProblemDetails/`, `src/ServiceForge.Api/OpenApi/`, and `tests/ServiceForge.Api.IntegrationTests/Contracts/`; depends on T026 and T028–T030; verify all approved status/code mappings, field-level validation details, `Retry-After: 2` for transient responses, endpoint documentation, and no unapproved contract surface; Coverage: US1–US6; P0 boundary: no authentication or UI contract.
+- [x] T028 Implement the approved `POST /api/appointments` route in `src/ServiceForge.Api/Endpoints/`; depends on T026 and T027; verified required `Idempotency-Key`, request binding, 201 Created, Location, Confirmed/Assigned representation, assigned IDs, UTC timestamps, replay, and conflict behavior; Coverage: US1/US5; P0 boundary: no authentication/JWT or additional write endpoint.
+- [x] T029 Implement `GET /api/appointments/{id}` in `src/ServiceForge.Api/Endpoints/`; depends on T010, T011, and T026; verified 200 representation for an existing appointment and 404 `RESOURCE_NOT_FOUND` when absent; Coverage: US6; P0 boundary: no cancellation, completion, or rescheduling endpoint.
+- [x] T030 Implement paginated `GET /api/customers/{id}/vehicles`, `GET /api/dealerships`, and `GET /api/service-types` in `src/ServiceForge.Api/Endpoints/` and SQL-backed readers; depends on T010, T011, and T014; verified default page 1/pageSize 20, bounds, stable ascending ID ordering, SQL Skip/Take pagination, and required metadata; Coverage: US6; P0 boundary: read-only reference endpoints only.
+- [x] T031 Implement RFC 9457-compatible Problem Details, OpenAPI, and HTTP contract verification in `src/ServiceForge.Api/Endpoints/` and `tests/ServiceForge.Api.IntegrationTests/`; depends on T026 and T028–T030; verified approved business codes/statuses, field validation details, and endpoint contract behavior. Retry-After mapping remains implemented for transient outcomes; no unapproved contract surface was added; Coverage: US1–US6; P0 boundary: no authentication or UI contract.
 
 ## Phase G: Quality and delivery
 

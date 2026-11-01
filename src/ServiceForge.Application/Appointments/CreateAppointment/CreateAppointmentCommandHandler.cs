@@ -32,8 +32,10 @@ public sealed class CreateAppointmentCommandHandler(
         {
             var errors = validation.Errors
                 .GroupBy(error => error.PropertyName)
-                .ToDictionary(group => group.Key, group => group.Select(error => error.ErrorMessage).ToArray());
-            return BookingOutcome.Invalid(errors);
+                .ToDictionary(group => group.Key.Replace("Request.", string.Empty), group => group.Select(error => error.ErrorMessage).ToArray());
+            return errors.ContainsKey("StartTime")
+                ? BookingOutcome.InvalidBookingTime(errors)
+                : BookingOutcome.Invalid(errors);
         }
 
         var request = command.Request;

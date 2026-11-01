@@ -19,4 +19,7 @@ public sealed record BookingOutcome(
 
     public static BookingOutcome Invalid(IReadOnlyDictionary<string, string[]> errors) =>
         new(400, "INVALID_REQUEST", "The request is invalid.", null, null, false, errors);
+
+    public static BookingOutcome InvalidBookingTime(IReadOnlyDictionary<string, string[]> errors) =>
+        new(400, "INVALID_BOOKING_TIME", "The booking time is invalid.", null, null, false, errors);
 }

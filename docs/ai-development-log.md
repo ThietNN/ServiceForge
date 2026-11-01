@@ -276,3 +276,22 @@
   without automatic retry, but no artificial deadlock was induced because doing so would be nondeterministic.
 - Unresolved questions: HTTP endpoint exposure and API contract tests remain pending T028-T031; broader
   acceptance and regression completion remain pending T032-T037.
+
+## T028-T031 - P0 HTTP API
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 implementation of T028-T031 on 2026-11-02.
+- Scope: Added exactly the five approved HTTP routes: appointment creation, appointment retrieval, and
+  the three paginated reference-data collections. Added SQL-backed read handlers, API composition and
+  DbContext registration, JSON enum formatting, RFC 9457-compatible Problem Details with machine-readable
+  codes and validation details, Retry-After mapping for transient outcomes, and development OpenAPI.
+  No authentication, JWT, frontend, background worker, extra route, or P1 workflow was added.
+- Verification performed: Added a WebApplicationFactory test project using the existing dedicated local
+  SQL Server configuration. Four HTTP integration tests passed, covering successful POST/GET, Location,
+  replay and conflict, missing key, invalid timestamp, pagination defaults/bounds, all three collections,
+  missing appointment, ownership failure, and vehicle conflict. The full solution build passed with zero
+  warnings/errors; the existing 21 unit tests and 18 SQL Server infrastructure/concurrency tests passed.
+  NuGet vulnerability audit reported no vulnerable packages, and `git diff --check` passed. No credentials,
+  connection values, or private environment investigation details were recorded.
+- Unresolved questions: Final acceptance/regression and delivery documentation remain pending T032-T037.
