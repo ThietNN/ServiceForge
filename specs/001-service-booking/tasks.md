@@ -11,7 +11,7 @@ description: "Approved implementation task breakdown for ServiceForge P0 service
 and ADRs 001–007.
 
 **Scope**: Backend-only P0 automotive service booking. T005 records the authorization gate; the
-current user authorization covers the T032-T035 acceptance and regression batch.
+current user authorization covers the T036-T037 delivery-readiness batch.
 
 **Task format**: Every task includes its ID, dependencies, relevant paths or artifacts, verification
 criteria, and explicit P0 boundary.
@@ -85,8 +85,8 @@ criteria, and explicit P0 boundary.
 - [x] T033 Implement API integration tests using `WebApplicationFactory` in `tests/ServiceForge.Api.IntegrationTests/`; depends on T028–T031 and T015; verified all five endpoints, HTTP contracts, Problem Details, Location header, UTC response data, pagination, ownership, conflict, replay, and P0 exclusions; Coverage: US1/US5/US6; P0 boundary: no authentication/JWT tests because authentication is excluded from P0.
 - [x] T034 Verify all 24 mandatory acceptance scenarios using the traceability matrix in `docs/acceptance-traceability.md`; depends on T027, T032, and T033; verified all 24 scenarios as covered with executed unit, SQL Server, and HTTP evidence; Coverage: US1–US6; P0 boundary: do not add P1 lifecycle scenarios.
 - [x] T035 Execute the full regression suite and correct failures in the affected `src/` and `tests/` paths; depends on T034; verified restore, build, all test projects, NuGet audit, diff checks, and three consecutive concurrency runs; no tests were weakened or SQL Server verification bypassed; P0 boundary: no unapproved behavior.
-- [ ] T036 Write README, setup instructions, and architectural tradeoffs in `README.md` and `docs/`; depends on T035; verify setup documents `net10.0`, dedicated local SQL Server prerequisites, Spec Kit feature context, lock/idempotency limitations, and no unauthorized infrastructure assumptions; P0 boundary: documentation only and no Docker configuration unless separately authorized.
-- [ ] T037 Complete final submission readiness review and Git checkpoint in `docs/ai-development-log.md`, the approved artifacts, and Git metadata; depends on T005 and T036; verify requirements traceability, executed verification evidence, clean diff, no unexpected files, and explicit implementation authorization status before release; P0 boundary: do not claim completion or authorization without human approval.
+- [x] T036 Write README, setup instructions, and architectural tradeoffs in `README.md` and `docs/`; depends on T035; verified `net10.0`, dedicated local SQL Server prerequisites, Spec Kit feature context, manual migration/seeding behavior, PowerShell and Bash/Zsh guidance, lock/idempotency limitations, platform qualifications, and no unauthorized infrastructure assumptions; P0 boundary: documentation only and no Docker configuration.
+- [x] T037 Complete final submission readiness review and Git checkpoint in `docs/ai-development-log.md`, the approved artifacts, and Git metadata; depends on T005 and T036; verified requirements traceability, all 24 acceptance scenarios, executed verification evidence, clean diff, no unexpected files, and explicit implementation authorization status; P0 boundary: no retrospective AI decision/assumption audit was started.
 
 ## Dependencies and Execution Order
 
@@ -170,7 +170,7 @@ considered complete without the approved conflict and idempotency guarantees tha
 - T005 records the implementation authorization gate. The current T011-T015 authorization is
   separately recorded in the AI development log.
 - T015 uses the explicitly authorized local SQL Server path and has completed real database verification.
-- The current T016-T020 authorization is recorded in the AI development log; T021-T037 remain pending.
+- The current T036-T037 authorization is recorded in the AI development log; all planned tasks are complete.
 - No task creates Angular, Playwright, authentication/JWT, P1 lifecycle workflows, microservices,
   message queues, migrations without review, Docker configuration, or runtime infrastructure without
   separate authorization.

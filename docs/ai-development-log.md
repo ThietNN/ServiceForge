@@ -319,3 +319,31 @@
   public code/status mapping and both Retry-After cases. SQL deadlock classification remains implemented
   without an artificial deadlock claim.
 - Unresolved questions: T036-T037 delivery documentation and final submission readiness remain pending.
+
+## T036-T037 - Delivery readiness and final submission review
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized the T036-T037 delivery-readiness batch on 2026-11-02.
+- Scope: Added reviewer-facing setup and architecture documentation in `README.md`; documented the
+  four-project structure, actual configuration keys, manual EF migration command, migration-backed
+  deterministic `HasData` seeding, API examples, test commands, Spec Kit feature context, platform
+  qualifications, approved limitations, and P0 exclusions. No source behavior, migration, Docker
+  configuration, runtime infrastructure, or approved specification was changed.
+- Verification performed: Inspected startup and design-time configuration to confirm there is no
+  automatic migration or startup seed operation. Confirmed the reviewed migration is
+  `20261101173028_InitialCreate` and that reference data is applied through EF `HasData`. Confirmed
+  .NET SDK 10.0.403 and `dotnet-ef` 10.0.14 are available. With the configured dedicated test
+  connection, the schema/connectivity tests passed 2/2, all SQL Server integration tests passed
+  18/18, all WebApplicationFactory HTTP integration tests passed 6/6, and the concurrency class
+  passed 9/9 in each of three consecutive runs. Final restore, build, and unit verification also
+  passed; the vulnerability audit reported no vulnerable packages and `git diff --check` passed.
+  Database migration, seed data, READ_COMMITTED_SNAPSHOT, cleanup, and isolation checks therefore
+  completed through the repository's actual tests. No connection value or credential was recorded.
+- Cross-platform status: The .NET solution and Windows PowerShell workflow are verified in the
+  repository environment. Complete macOS/Linux execution and cross-platform Spec Kit PowerShell
+  invocation remain unverified. SQL Server authentication and time-zone identifier behavior may
+  require OS-specific setup; README documents this without claiming compatibility.
+- Unresolved questions: The retrospective AI decision/assumption audit requested for a later stage
+  has not been started. Direct database writers that bypass the booking lock protocol and artificial
+  SQL deadlock induction remain documented limitations.
