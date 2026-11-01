@@ -4,6 +4,7 @@ using ServiceForge.Infrastructure.Persistence;
 
 namespace ServiceForge.Infrastructure.IntegrationTests;
 
+[Collection("Shared SQL Server integration")]
 public sealed class SqlServerSchemaTests : IAsyncLifetime
 {
     private string ConnectionString => Environment.GetEnvironmentVariable("SERVICEFORGE_TEST_SQLSERVER_CONNECTION")

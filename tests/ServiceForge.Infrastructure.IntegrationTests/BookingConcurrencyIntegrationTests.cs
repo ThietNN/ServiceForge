@@ -14,6 +14,7 @@ using ServiceForge.Infrastructure.Persistence.Transactions;
 
 namespace ServiceForge.Infrastructure.IntegrationTests;
 
+[Collection("Shared SQL Server integration")]
 public sealed class BookingConcurrencyIntegrationTests
 {
     [Fact]
