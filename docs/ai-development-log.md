@@ -347,3 +347,26 @@
 - Unresolved questions: The retrospective AI decision/assumption audit requested for a later stage
   has not been started. Direct database writers that bypass the booking lock protocol and artificial
   SQL deadlock induction remain documented limitations.
+
+## Batch R1 - Post-implementation audit corrections
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The owner explicitly authorized corrections for H-001, H-002, C-001, and M-002;
+  no other changes were authorized.
+- Changes: New bookings now obtain fresh SQL Server UTC after vehicle and dealership locks before
+  mutable time validation and persistence. Timestamp parsing now uses strict invariant ISO 8601
+  formats with `Z` or an explicit offset in both request validation and booking normalization.
+  Added deterministic regression coverage for post-lock future-time revalidation, valid/invalid
+  timestamp formats, and the Development OpenAPI document's five approved operations. Reconciled
+  the constitution and FR-089 with the previously approved dedicated local SQL Server path; real
+  SQL Server remains mandatory, while Testcontainers is optional when explicitly approved and
+  available. No new task IDs, endpoints, infrastructure, or P1 behavior were added.
+- Verification: Restore passed. The final standalone build passed with zero warnings and errors. The
+  complete unit suite passed 31 tests, the HTTP integration suite passed 7 tests, and the SQL Server
+  integration suite passed 19 tests. The concurrency class passed 10 tests in each of three
+  consecutive runs, including the delayed-lock regression. The focused OpenAPI test and strict time
+  parsing tests passed. The NuGet vulnerability audit reported no vulnerable packages and
+  `git diff --check` passed. All 24 acceptance scenarios remain covered; no SQL deadlock was induced.
+- Remaining limitation: SQL deadlock classification remains implemented but has not been verified by
+  inducing an artificial SQL deadlock.

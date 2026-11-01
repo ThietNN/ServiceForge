@@ -1,6 +1,5 @@
-using System.Globalization;
-using System.Text.RegularExpressions;
 using ServiceForge.Application.Abstractions;
+using ServiceForge.Application.Validation;
 using ServiceForge.Domain.Time;
 
 namespace ServiceForge.Application.Appointments.Rules;
@@ -9,26 +8,14 @@ public sealed record NormalizedBookingTime(BookingInterval Interval, int Duratio
 
 public sealed class BookingTimeValidator(IAuthoritativeUtcClock authoritativeUtcClock)
 {
-    private static readonly Regex ExplicitOffset = new(@"(?:Z|[+-]\d{2}:\d{2})$", RegexOptions.CultureInvariant);
-
     public RuleResult<NormalizedBookingTime> Validate(string? startTime, int durationMinutes)
     {
-        if (durationMinutes <= 0 || string.IsNullOrWhiteSpace(startTime) || !ExplicitOffset.IsMatch(startTime))
+        if (durationMinutes <= 0 || string.IsNullOrWhiteSpace(startTime)
+            || !Iso8601TimestampParser.TryParse(startTime, out var parsed))
         {
             return RuleResult<NormalizedBookingTime>.Failure(
                 BookingRuleErrorCodes.InvalidBookingTime,
                 "Start time must be ISO 8601 with an explicit UTC offset and duration must be positive.");
-        }
-
-        if (!DateTimeOffset.TryParse(
-                startTime,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AllowWhiteSpaces,
-                out var parsed))
-        {
-            return RuleResult<NormalizedBookingTime>.Failure(
-                BookingRuleErrorCodes.InvalidBookingTime,
-                "Start time must be a valid ISO 8601 timestamp.");
         }
 
         if (parsed.Ticks % TimeSpan.TicksPerMinute != 0)

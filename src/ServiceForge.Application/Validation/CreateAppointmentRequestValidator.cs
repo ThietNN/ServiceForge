@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentValidation;
 using ServiceForge.Application.Appointments.Contracts;
@@ -28,11 +27,7 @@ public sealed class CreateAppointmentRequestValidator : AbstractValidator<Create
             return false;
         }
 
-        return DateTimeOffset.TryParse(
-                   value,
-                   CultureInfo.InvariantCulture,
-                   DateTimeStyles.RoundtripKind,
-                   out var parsed)
+        return Iso8601TimestampParser.TryParse(value, out var parsed)
                && parsed.Ticks % TimeSpan.TicksPerMinute == 0;
     }
 }

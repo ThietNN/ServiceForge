@@ -24,6 +24,7 @@ public sealed class BookingBusinessRulesTests
     }
 
     [Theory]
+    [InlineData("01/15/2027 10:00:00 +07:00")]
     [InlineData("2026-01-02T09:00:00")]
     [InlineData("2026-01-02T09:00:01+07:00")]
     [InlineData("2025-12-31T09:00:00+07:00")]
@@ -35,6 +36,19 @@ public sealed class BookingBusinessRulesTests
 
         Assert.False(result.IsValid);
         Assert.Equal(BookingRuleErrorCodes.InvalidBookingTime, result.ErrorCode);
+    }
+
+    [Theory]
+    [InlineData("2027-01-15T10:00:00Z")]
+    [InlineData("2027-01-15T10:00:00+07:00")]
+    [InlineData("2027-01-15T10:00:00-05:00")]
+    public void Booking_time_accepts_iso8601_utc_and_explicit_offset_forms(string startTime)
+    {
+        var validator = new BookingTimeValidator(new FixedClock(NowUtc));
+
+        var result = validator.Validate(startTime, 60);
+
+        Assert.True(result.IsValid);
     }
 
     [Fact]

@@ -18,6 +18,7 @@ public sealed class ApplicationValidationTests
     }
 
     [Theory]
+    [InlineData("01/15/2030 09:00:00 +07:00")]
     [InlineData("2030-01-02T09:00:30+07:00")]
     [InlineData("2030-01-02T09:00:00")]
     public void CreateAppointmentRequest_rejects_missing_or_non_minute_offset(string startTime)
@@ -28,6 +29,19 @@ public sealed class ApplicationValidationTests
         var result = validator.Validate(request);
 
         Assert.False(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData("2030-01-02T09:00:00Z")]
+    [InlineData("2030-01-02T09:00:00+07:00")]
+    [InlineData("2030-01-02T09:00:00-05:00")]
+    public void CreateAppointmentRequest_accepts_iso8601_utc_and_explicit_offset_forms(string startTime)
+    {
+        var validator = new CreateAppointmentRequestValidator();
+
+        var result = validator.Validate(new CreateAppointmentRequest(1, 2, 3, 4, startTime));
+
+        Assert.True(result.IsValid);
     }
 
     [Fact]

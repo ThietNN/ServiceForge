@@ -166,6 +166,39 @@ public sealed class ApiIntegrationTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task Development_openapi_describes_all_five_approved_endpoints()
+    {
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync("/openapi/v1.json");
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType!.MediaType);
+
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStreamAsync());
+        var root = document.RootElement;
+        Assert.True(root.TryGetProperty("openapi", out var version));
+        Assert.Equal(JsonValueKind.String, version.ValueKind);
+        Assert.True(root.TryGetProperty("paths", out var paths));
+        Assert.Equal(JsonValueKind.Object, paths.ValueKind);
+
+        var expected = new[]
+        {
+            (Path: "/api/appointments", Method: "post"),
+            (Path: "/api/appointments/{id}", Method: "get"),
+            (Path: "/api/customers/{id}/vehicles", Method: "get"),
+            (Path: "/api/dealerships", Method: "get"),
+            (Path: "/api/service-types", Method: "get")
+        };
+
+        foreach (var endpoint in expected)
+        {
+            Assert.True(paths.TryGetProperty(endpoint.Path, out var pathItem), endpoint.Path);
+            Assert.True(pathItem.TryGetProperty(endpoint.Method, out _),
+                $"{endpoint.Method.ToUpperInvariant()} {endpoint.Path}");
+        }
+    }
+
+    [Fact]
     public async Task Ownership_failure_and_vehicle_conflict_use_approved_problem_details()
     {
         await factory.EnsureDatabaseAsync();

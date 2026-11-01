@@ -365,7 +365,9 @@ and verify status codes, representations, ordering, and pagination metadata.
 
 - **FR-087**: The feature MUST have unit tests for deterministic rules.
 - **FR-088**: The feature MUST have xUnit API integration tests with WebApplicationFactory.
-- **FR-089**: Database integration tests MUST use real SQL Server through Testcontainers.
+- **FR-089**: Database integration tests MUST use a real SQL Server through the dedicated disposable
+  integration-test database configured by `SERVICEFORGE_TEST_SQLSERVER_CONNECTION`; Testcontainers
+  MAY be used where explicitly approved and available.
 - **FR-090**: Concurrency tests MUST use separate connections and controlled synchronization.
 - **FR-091**: Tests MUST cover idempotency, rollback, timezone, ownership, resource allocation, and
   HTTP contracts.

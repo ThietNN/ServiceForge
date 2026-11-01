@@ -237,6 +237,39 @@ public sealed class BookingConcurrencyIntegrationTests
         }
     }
 
+    [Fact]
+    public async Task Booking_revalidates_future_start_after_vehicle_lock_wait()
+    {
+        var key = Key();
+        var clock = new AdvancingSqlClock(
+            new DateTime(2027, 1, 5, 8, 59, 0, DateTimeKind.Utc),
+            new DateTime(2027, 1, 5, 9, 1, 0, DateTimeKind.Utc));
+        await using var blockerConnection = new SqlConnection(ConnectionString());
+        await blockerConnection.OpenAsync();
+        await using var blockerTransaction = await blockerConnection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+        var lockManager = new SqlServerBookingLockManager();
+        await lockManager.AcquireAsync(blockerTransaction, BookingLockKind.Vehicle, "1");
+
+        try
+        {
+            var booking = SendAsync(
+                Command(1, 1, 2, 2, "2027-01-05T09:00:00Z", key), clock);
+            await clock.FirstCall.Task;
+            Assert.False(booking.IsCompleted);
+
+            await blockerTransaction.RollbackAsync();
+            var result = await booking;
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal("INVALID_BOOKING_TIME", result.ErrorCode);
+            Assert.Equal(0, await CountAppointmentsAsync(key));
+        }
+        finally
+        {
+            await CleanupAsync(key);
+        }
+    }
+
     private static CreateAppointmentCommand Command(
         long customerId,
         long vehicleId,
@@ -257,20 +290,26 @@ public sealed class BookingConcurrencyIntegrationTests
         return await Task.WhenAll(tasks);
     }
 
-    private static async Task<BookingOutcome> SendAsync(CreateAppointmentCommand command)
+    private static async Task<BookingOutcome> SendAsync(
+        CreateAppointmentCommand command,
+        ISqlServerUtcClock? clock = null)
     {
-        await using var provider = CreateProvider();
+        await using var provider = CreateProvider(clock);
         await using var scope = provider.CreateAsyncScope();
         return await scope.ServiceProvider.GetRequiredService<IMediator>().Send(command);
     }
 
-    private static ServiceProvider CreateProvider()
+    private static ServiceProvider CreateProvider(ISqlServerUtcClock? clock = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddServiceForgeApplication();
         services.AddServiceForgeInfrastructure();
         services.AddDbContext<ServiceForgeDbContext>(options => options.UseSqlServer(ConnectionString()));
+        if (clock is not null)
+        {
+            services.AddScoped<ISqlServerUtcClock>(_ => clock);
+        }
         return services.BuildServiceProvider();
     }
 
@@ -307,4 +346,25 @@ public sealed class BookingConcurrencyIntegrationTests
         ?? throw new InvalidOperationException("SERVICEFORGE_TEST_SQLSERVER_CONNECTION is required.");
 
     private static string Key() => $"batch4b-{Guid.NewGuid():N}";
+
+    private sealed class AdvancingSqlClock(DateTime first, DateTime second) : ISqlServerUtcClock
+    {
+        private int calls;
+        public TaskCompletionSource<bool> FirstCall { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public Task<DateTime> GetUtcNowAsync(
+            System.Data.Common.DbConnection connection,
+            System.Data.Common.DbTransaction? transaction = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (Interlocked.Increment(ref calls) == 1)
+            {
+                FirstCall.SetResult(true);
+                return Task.FromResult(first);
+            }
+
+            return Task.FromResult(second);
+        }
+    }
 }

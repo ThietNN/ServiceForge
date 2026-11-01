@@ -1,11 +1,12 @@
 <!--
 Sync Impact Report
-- Version change: placeholder → 1.0.0
+- Version change: 1.0.0 → 1.1.0
 - Modified principles: replaced the five placeholder principles with eight approved
   ServiceForge principles I–VIII.
 - Added sections: Scope and Deferred Work; Compliance and Change Control.
 - Removed sections: placeholder examples and unresolved template fields.
-- Follow-up TODOs: none.
+- Reconciled database integration testing with the owner-approved dedicated local SQL Server path;
+  Testcontainers remains optional.
 -->
 
 # ServiceForge Constitution
@@ -67,7 +68,9 @@ Sync Impact Report
 ### VI. Quality
 
 - Unit and integration tests are mandatory.
-- Database integration tests MUST use a real SQL Server through Testcontainers.
+- Database integration tests MUST use a real SQL Server through the owner-approved dedicated,
+  disposable integration-test database. Testcontainers MAY be used where explicitly approved and
+  available, but is not mandatory for this repository.
 - Tests MUST verify concurrency, idempotency, ownership, timezone behavior, rollback, and error
   contracts.
 - EF Core InMemory is not proof of SQL Server concurrency correctness.
@@ -111,4 +114,4 @@ governance change. Compliance MUST be reviewed during specification, planning, i
 and code review. No agent may treat approval of a specification as authorization for work outside
 the approved task.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-01 | **Last Amended**: 2026-11-01
+**Version**: 1.1.0 | **Ratified**: 2026-11-01 | **Last Amended**: 2026-11-02

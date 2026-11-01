@@ -6,6 +6,7 @@ using ServiceForge.Application.Appointments.Allocation;
 using ServiceForge.Application.Appointments.Contracts;
 using ServiceForge.Application.Appointments.Idempotency;
 using ServiceForge.Application.Appointments.Rules;
+using ServiceForge.Application.Validation;
 using ServiceForge.Domain.Entities;
 using ServiceForge.Domain.Enums;
 using ServiceForge.Domain.Time;
@@ -74,7 +75,7 @@ public sealed class CreateAppointmentCommandHandler(
                     "The booking could not acquire the idempotency lock.");
             }
 
-            var authoritativeNow = await sqlServerUtcClock.GetUtcNowAsync(
+            var idempotencyNow = await sqlServerUtcClock.GetUtcNowAsync(
                 transaction.DbTransaction.Connection!, transaction.DbTransaction, cancellationToken);
             var identity = new CanonicalRequestIdentity(
                 request.CustomerId,
@@ -84,7 +85,7 @@ public sealed class CreateAppointmentCommandHandler(
                 preliminaryTime.Value.UtcDateTime);
             var requestHash = CanonicalRequestHasher.ComputeHash(identity);
             var lookup = await idempotencyStore.LookupAsync(
-                command.IdempotencyKey, requestHash, authoritativeNow, cancellationToken);
+                command.IdempotencyKey, requestHash, idempotencyNow, cancellationToken);
 
             if (lookup.Status == IdempotencyLookupStatus.MatchingUnexpired)
             {
@@ -122,6 +123,8 @@ public sealed class CreateAppointmentCommandHandler(
                     "The booking could not be serialized because of a transient database failure.");
             }
 
+            var authoritativeNow = await sqlServerUtcClock.GetUtcNowAsync(
+                transaction.DbTransaction.Connection!, transaction.DbTransaction, cancellationToken);
             var referenceData = await referenceDataQueries.GetAsync(
                 request.CustomerId, request.VehicleId, request.DealershipId, request.ServiceTypeId, cancellationToken);
             if (!referenceData.CustomerExists || !referenceData.VehicleExists || !referenceData.DealershipExists
@@ -215,8 +218,7 @@ public sealed class CreateAppointmentCommandHandler(
     }
 
     private static DateTimeOffset? ParseRequestTime(string value) =>
-        DateTimeOffset.TryParse(value, System.Globalization.CultureInfo.InvariantCulture,
-            System.Globalization.DateTimeStyles.RoundtripKind, out var parsed) ? parsed : null;
+        Iso8601TimestampParser.TryParse(value, out var parsed) ? parsed : null;
 
     private sealed class FixedClock(DateTime utcNow) : IAuthoritativeUtcClock
     {
