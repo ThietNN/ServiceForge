@@ -1,0 +1,81 @@
+using System.Data;
+using System.Data.Common;
+
+namespace ServiceForge.Infrastructure.Persistence.Transactions;
+
+public enum BookingLockKind
+{
+    IdempotencyKey,
+    Vehicle,
+    Dealership
+}
+
+public static class BookingLockResourceNames
+{
+    public static string For(BookingLockKind kind, string value) =>
+        kind switch
+        {
+            BookingLockKind.IdempotencyKey => $"ServiceForge:Booking:IdempotencyKey:{value}",
+            BookingLockKind.Vehicle => $"ServiceForge:Booking:Vehicle:{value}",
+            BookingLockKind.Dealership => $"ServiceForge:Booking:Dealership:{value}",
+            _ => throw new ArgumentOutOfRangeException(nameof(kind))
+        };
+}
+
+public sealed class BookingLockException(int returnCode, string resourceName)
+    : InvalidOperationException($"SQL Server application lock failed with return code {returnCode}.")
+{
+    public int ReturnCode { get; } = returnCode;
+    public string ResourceName { get; } = resourceName;
+}
+
+public interface IBookingLockManager
+{
+    Task AcquireAsync(
+        DbTransaction transaction,
+        BookingLockKind kind,
+        string value,
+        CancellationToken cancellationToken = default);
+}
+
+public sealed class SqlServerBookingLockManager : IBookingLockManager
+{
+    public async Task AcquireAsync(
+        DbTransaction transaction,
+        BookingLockKind kind,
+        string value,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(transaction);
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+
+        var resourceName = BookingLockResourceNames.For(kind, value);
+        await using var command = transaction.Connection?.CreateCommand()
+            ?? throw new InvalidOperationException("The transaction has no active connection.");
+        command.Transaction = transaction;
+        command.CommandTimeout = 6;
+        command.CommandText = """
+            DECLARE @result int;
+            EXEC @result = sp_getapplock
+                @Resource = @resource,
+                @LockMode = 'Exclusive',
+                @LockOwner = 'Transaction',
+                @LockTimeout = 5000,
+                @DbPrincipal = 'public';
+            SELECT @result;
+            """;
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = "@resource";
+        parameter.DbType = DbType.String;
+        parameter.Size = 255;
+        parameter.Value = resourceName;
+        command.Parameters.Add(parameter);
+
+        var result = await command.ExecuteScalarAsync(cancellationToken);
+        var returnCode = Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
+        if (returnCode < 0)
+        {
+            throw new BookingLockException(returnCode, resourceName);
+        }
+    }
+}

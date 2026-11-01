@@ -20,7 +20,7 @@ public sealed class Appointment
         DateTime? actualCompletedAtUtc,
         DateTime createdAtUtc)
     {
-        if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id));
+        if (id < 0) throw new ArgumentOutOfRangeException(nameof(id));
         if (customerId <= 0) throw new ArgumentOutOfRangeException(nameof(customerId));
         if (vehicleId <= 0) throw new ArgumentOutOfRangeException(nameof(vehicleId));
         if (dealershipId <= 0) throw new ArgumentOutOfRangeException(nameof(dealershipId));

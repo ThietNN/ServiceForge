@@ -235,3 +235,22 @@
   with 19 passing tests and the SQL Server integration suite with 6 passing tests; build completed with
   zero warnings and errors.
 - Unresolved questions: T021 and later transaction/idempotency/API work remains pending.
+
+## T021-T025 - SQL locking and idempotency infrastructure
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 implementation of T021-T025 on 2026-11-02.
+- Scope: Added typed canonical SHA-256 request identity hashing, a SQL Server `SYSUTCDATETIME()` clock,
+  transaction-owned exclusive `sp_getapplock` support with deterministic parameterized resources and
+  five-second timeouts, idempotency lookup/replay/conflict/expiry behavior, and atomic persistence of
+  a fully assigned Confirmed appointment with its successful idempotency response. No booking
+  orchestration, HTTP endpoints, concurrency scenario suite, Processing state, or P1 behavior was added.
+- Verification performed: The solution build passed with zero warnings and errors; the unit suite passed
+  21 tests; the local SQL Server integration suite passed 9 tests covering the SQL clock, lock timeout
+  and release, idempotency matching/conflict/expiry replacement, atomic commit, and rollback. The
+  implementation uses the existing dedicated integration-test connection supplied at test runtime;
+  no credentials or connection values were recorded. NuGet vulnerability audit and `git diff --check`
+  were run for this checkpoint.
+- Unresolved questions: Booking command orchestration, API contracts, controlled multi-request booking
+  concurrency tests, and later tasks remain pending T026 and beyond.
