@@ -1,0 +1,13 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio and .NET user state
+*.user
+*.suo
+packages/
+
+# Local environment files
+.env
+.env.*
+!.env.example

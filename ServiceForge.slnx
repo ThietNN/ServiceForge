@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ServiceForge.Api/ServiceForge.Api.csproj" />
+    <Project Path="src/ServiceForge.Application/ServiceForge.Application.csproj" />
+    <Project Path="src/ServiceForge.Domain/ServiceForge.Domain.csproj" />
+    <Project Path="src/ServiceForge.Infrastructure/ServiceForge.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ServiceForge.UnitTests/ServiceForge.UnitTests.csproj" />
+  </Folder>
+</Solution>

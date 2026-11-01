@@ -10,8 +10,8 @@ description: "Approved implementation task breakdown for ServiceForge P0 service
 **Prerequisites**: `spec.md`, `plan.md`, `data-model.md`, `contracts/api.md`, requirements checklist,
 and ADRs 001–007.
 
-**Scope**: Backend-only P0 automotive service booking. No application implementation is authorized by
-this documentation checkpoint. T005 is an explicit authorization gate and remains pending.
+**Scope**: Backend-only P0 automotive service booking. T005 records explicit authorization for the
+T006-T010 foundation batch; later implementation remains pending.
 
 **Task format**: Every task includes its ID, dependencies, relevant paths or artifacts, verification
 criteria, and explicit P0 boundary.
@@ -24,17 +24,17 @@ criteria, and explicit P0 boundary.
 - [x] T002 Complete the approved constitution, feature specification, architecture plan, ten-table data model, API contract, and ADRs in `.specify/memory/constitution.md`, `specs/001-service-booking/`, and `docs/adr/`; depends on T001; verify approved artifacts are internally consistent; P0 boundary: approved P0 documentation only, with P1 workflows deferred.
 - [x] T003 Finalize this dependency-ordered task breakdown in `specs/001-service-booking/tasks.md`; depends on T002; verify exactly T001–T037 are present with no duplicate or missing IDs; P0 boundary: planning only and no authorization implied.
 - [x] T004 Verify documentation consistency and implementation readiness across `AGENTS.md`, `.specify/memory/constitution.md`, `specs/001-service-booking/`, and `docs/adr/`; depends on T003; verify approved requirements, contracts, schema, ADRs, and acceptance coverage agree; P0 boundary: no source, migration, Docker, or runtime changes.
-- [ ] T005 Establish the implementation authorization checkpoint in `docs/ai-development-log.md` and the Git review record; depends on T004 and explicit human authorization; verify authorization is recorded before any implementation task starts; P0 boundary: authorization is currently pending and this task MUST NOT be treated as granted.
+- [x] T005 Establish the implementation authorization checkpoint in `docs/ai-development-log.md` and the Git review record; depends on T004 and explicit human authorization; verify authorization is recorded before any implementation task starts; P0 boundary: authorization is recorded for the approved T006-T010 batch only.
 
 ## Phase B: Solution foundation
 
 **Purpose**: Create the approved .NET solution boundaries and shared application foundation after T005 authorization.
 
-- [ ] T006 Create `ServiceForge.slnx` and the four `src/ServiceForge.Api/`, `src/ServiceForge.Application/`, `src/ServiceForge.Domain/`, and `src/ServiceForge.Infrastructure/` .NET 10 production projects; depends on T005; verify all projects target `net10.0` and no frontend project exists; P0 boundary: exactly four approved production projects, no Angular, Playwright, microservices, or message queues.
-- [ ] T007 Configure project references and built-in dependency injection in `src/ServiceForge.slnx`, `src/ServiceForge.Api/Program.cs`, and project files; depends on T006; verify dependencies point inward, Domain has no Infrastructure/Presentation reference, and Infrastructure composition occurs at the API boundary; P0 boundary: preserve Clean Architecture and do not add unapproved frameworks.
-- [ ] T008 Establish approved package dependencies and configuration in `src/ServiceForge.Api/*.csproj`, `src/ServiceForge.Application/*.csproj`, `src/ServiceForge.Infrastructure/*.csproj`, and `src/ServiceForge.Api/appsettings*.json`; depends on T007; verify EF Core SQL Server, MediatR, FluentValidation, Swagger/OpenAPI, structured logging, xUnit/WebApplicationFactory, and Testcontainers are configured without unrelated dependencies; P0 boundary: no authentication/JWT, Angular, Playwright, or runtime infrastructure.
-- [ ] T009 [P] Define Domain entities, value objects, and approved enums in `src/ServiceForge.Domain/Entities/`, `src/ServiceForge.Domain/ValueObjects/`, and `src/ServiceForge.Domain/Enums/`; depends on T007; verify appointment/resource/status invariants and framework independence; P0 boundary: model only approved P0 behavior plus explicitly approved P1 schema anticipation.
-- [ ] T010 Define Application CQRS contracts and validation in `src/ServiceForge.Application/Common/`, `src/ServiceForge.Application/Appointments/`, and `src/ServiceForge.Application/ReferenceData/`; depends on T007 and T009; verify MediatR commands/queries, FluentValidation rules, result/error contracts, and focused abstractions are traceable to `spec.md` and `contracts/api.md`; P0 boundary: no generic repository or unapproved use case.
+- [x] T006 Create `ServiceForge.slnx` and the four `src/ServiceForge.Api/`, `src/ServiceForge.Application/`, `src/ServiceForge.Domain/`, and `src/ServiceForge.Infrastructure/` .NET 10 production projects; depends on T005; verify all projects target `net10.0` and no frontend project exists; P0 boundary: exactly four approved production projects, no Angular, Playwright, microservices, or message queues.
+- [x] T007 Configure project references and built-in dependency injection in `src/ServiceForge.slnx`, `src/ServiceForge.Api/Program.cs`, and project files; depends on T006; verify dependencies point inward, Domain has no Infrastructure/Presentation reference, and Infrastructure composition occurs at the API boundary; P0 boundary: preserve Clean Architecture and do not add unapproved frameworks.
+- [x] T008 Establish approved package dependencies and configuration in `src/ServiceForge.Api/*.csproj`, `src/ServiceForge.Application/*.csproj`, `src/ServiceForge.Infrastructure/*.csproj`, and `src/ServiceForge.Api/appsettings*.json`; depends on T007; verify EF Core SQL Server, MediatR, FluentValidation, Swagger/OpenAPI, structured logging, xUnit/WebApplicationFactory, and Testcontainers are configured without unrelated dependencies; P0 boundary: no authentication/JWT, Angular, Playwright, or runtime infrastructure. Batch foundation packages and xUnit tests are configured; WebApplicationFactory and Testcontainers remain scheduled for later integration tasks.
+- [x] T009 [P] Define Domain entities, value objects, and approved enums in `src/ServiceForge.Domain/Entities/`, `src/ServiceForge.Domain/ValueObjects/`, and `src/ServiceForge.Domain/Enums/`; depends on T007; verify appointment/resource/status invariants and framework independence; P0 boundary: model only approved P0 behavior plus explicitly approved P1 schema anticipation.
+- [x] T010 Define Application CQRS contracts and validation in `src/ServiceForge.Application/Common/`, `src/ServiceForge.Application/Appointments/`, and `src/ServiceForge.Application/ReferenceData/`; depends on T007 and T009; verify MediatR commands/queries, FluentValidation rules, result/error contracts, and focused abstractions are traceable to `spec.md` and `contracts/api.md`; P0 boundary: no generic repository or unapproved use case.
 
 ## Phase C: SQL Server persistence
 
@@ -168,8 +168,8 @@ considered complete without the approved conflict and idempotency guarantees tha
 
 - Completed `[x]` tasks record previously verified documentation work; they do not authorize source
   implementation.
-- T005 is intentionally unchecked. Implementation tasks T006–T037 remain pending until explicit
-  authorization is recorded.
+- T005 records explicit authorization for the T006-T010 implementation batch. T011-T037 remain
+  pending and require their own implementation sequencing and verification.
 - No task creates Angular, Playwright, authentication/JWT, P1 lifecycle workflows, microservices,
   message queues, migrations without review, Docker configuration, or runtime infrastructure without
   separate authorization.

@@ -134,3 +134,29 @@
   documentation consistency checks and `git diff --check`.
 - Unresolved questions: Implementation authorization remains pending and must be explicitly recorded
   before T006 or any source-code task begins.
+
+## T005-T010 — Authorized implementation foundation batch
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 implementation on 2026-11-02 for T005-T010 only.
+- Scope: Recorded T005 authorization; created the .NET 10 solution and four Clean Architecture
+  production projects; configured inward project references and DI registration extension points;
+  added approved foundation packages; implemented framework-independent Domain entities and enums;
+  added Application CQRS contracts, DTOs, focused abstractions, and request-level validators; and
+  added focused xUnit tests for the pure Domain and Application behavior. No DbContext, migrations,
+  database, SQL locks, booking transaction, API endpoints, Docker configuration, or P1 workflow was
+  created.
+- Package versions: `MediatR` 14.2.0, `FluentValidation` 12.2.0,
+  `FluentValidation.DependencyInjectionExtensions` 12.2.0, `Microsoft.EntityFrameworkCore.SqlServer`
+  10.0.14, `Microsoft.AspNetCore.OpenApi` 10.0.14, and xUnit template dependencies including
+  `coverlet.collector` 6.0.4.
+- Verification performed: Ran `dotnet restore ServiceForge.slnx`; ran
+  `dotnet build ServiceForge.slnx --no-restore` successfully with four projects and zero errors;
+  ran the focused unit test project successfully; checked project references and target frameworks;
+  verified no API route or persistence implementation was added; ran `git diff --check`.
+- Warning: Restore/build reported NU1902 and NU1903 advisories for transitive
+  `System.Security.Cryptography.Pkcs` 9.0.11. No dependency upgrade was applied in this bounded
+  batch; the warning remains for review before release.
+- Unresolved questions: WebApplicationFactory, Testcontainers, EF Core DbContext, migrations, and
+  booking transaction implementation remain scheduled for later tasks and were not started.
