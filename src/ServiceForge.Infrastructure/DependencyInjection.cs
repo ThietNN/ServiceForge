@@ -15,6 +15,7 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(services);
         services.AddScoped<IVehicleBookingQueries, VehicleBookingQueries>();
         services.AddScoped<IBookingResourceQueries, BookingResourceQueries>();
+        services.AddScoped<IBookingReferenceDataQueries, BookingReferenceDataQueries>();
         services.AddScoped<IIdempotencyStore, SqlServerIdempotencyStore>();
         services.AddScoped<IAtomicBookingPersistence, SqlServerAtomicBookingPersistence>();
         services.AddScoped<ISqlServerUtcClock, SqlServerUtcClock>();

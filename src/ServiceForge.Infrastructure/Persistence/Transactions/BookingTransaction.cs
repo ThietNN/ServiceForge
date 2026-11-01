@@ -1,10 +1,11 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using ServiceForge.Application.Abstractions;
 
 namespace ServiceForge.Infrastructure.Persistence.Transactions;
 
-public sealed class SqlServerBookingTransaction : IAsyncDisposable
+public sealed class SqlServerBookingTransaction : IBookingTransaction
 {
     private readonly IDbContextTransaction transaction;
 
@@ -22,15 +23,10 @@ public sealed class SqlServerBookingTransaction : IAsyncDisposable
     public ValueTask DisposeAsync() => transaction.DisposeAsync();
 }
 
-public interface IBookingTransactionFactory
-{
-    Task<SqlServerBookingTransaction> BeginAsync(CancellationToken cancellationToken = default);
-}
-
 public sealed class SqlServerBookingTransactionFactory(Persistence.ServiceForgeDbContext dbContext)
     : IBookingTransactionFactory
 {
-    public async Task<SqlServerBookingTransaction> BeginAsync(CancellationToken cancellationToken = default)
+    public async Task<IBookingTransaction> BeginAsync(CancellationToken cancellationToken = default)
     {
         await dbContext.Database.ExecuteSqlRawAsync(
             "SET TRANSACTION ISOLATION LEVEL READ COMMITTED",

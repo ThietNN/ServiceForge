@@ -4,4 +4,4 @@ namespace ServiceForge.Application.Appointments.Contracts;
 
 public sealed record CreateAppointmentCommand(
     CreateAppointmentRequest Request,
-    string IdempotencyKey) : IRequest<AppointmentResponse>;
+    string IdempotencyKey) : IRequest<BookingOutcome>;

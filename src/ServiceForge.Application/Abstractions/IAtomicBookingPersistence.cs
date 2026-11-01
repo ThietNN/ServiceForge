@@ -7,6 +7,11 @@ public interface IAtomicBookingPersistence
 {
     Task PersistAsync(
         Appointment appointment,
-        IdempotencyRecordData idempotencyRecord,
+        string key,
+        ReadOnlyMemory<byte> requestHash,
+        short responseStatusCode,
+        Func<long, string> responseBodyFactory,
+        DateTime createdAtUtc,
+        DateTime expiresAtUtc,
         CancellationToken cancellationToken);
 }

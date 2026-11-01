@@ -10,11 +10,17 @@ public sealed class SqlServerAtomicBookingPersistence(
 {
     public async Task PersistAsync(
         Appointment appointment,
-        IdempotencyRecordData idempotencyRecord,
+        string key,
+        ReadOnlyMemory<byte> requestHash,
+        short responseStatusCode,
+        Func<long, string> responseBodyFactory,
+        DateTime createdAtUtc,
+        DateTime expiresAtUtc,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(appointment);
-        ArgumentNullException.ThrowIfNull(idempotencyRecord);
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+        ArgumentNullException.ThrowIfNull(responseBodyFactory);
 
         if (dbContext.Database.CurrentTransaction is null)
         {
@@ -33,10 +39,10 @@ public sealed class SqlServerAtomicBookingPersistence(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var existing = await dbContext.IdempotencyRecords
-            .SingleOrDefaultAsync(item => item.Key == idempotencyRecord.Key, cancellationToken);
+            .SingleOrDefaultAsync(item => item.Key == key, cancellationToken);
         if (existing is not null)
         {
-            if (existing.ExpiresAtUtc > idempotencyRecord.CreatedAtUtc)
+            if (existing.ExpiresAtUtc > createdAtUtc)
             {
                 throw new InvalidOperationException("An unexpired idempotency record already exists.");
             }
@@ -45,13 +51,13 @@ public sealed class SqlServerAtomicBookingPersistence(
         }
 
         dbContext.IdempotencyRecords.Add(new IdempotencyRecord(
-            idempotencyRecord.Key,
-            idempotencyRecord.RequestHash,
+            key,
+            requestHash.ToArray(),
             appointment.Id,
-            idempotencyRecord.ResponseStatusCode,
-            idempotencyRecord.ResponseBody,
-            idempotencyRecord.CreatedAtUtc,
-            idempotencyRecord.ExpiresAtUtc));
+            responseStatusCode,
+            responseBodyFactory(appointment.Id),
+            createdAtUtc,
+            expiresAtUtc));
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

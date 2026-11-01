@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using ServiceForge.Application.Abstractions;
 using ServiceForge.Application.Appointments.Idempotency;
 using ServiceForge.Domain.Entities;
 using ServiceForge.Domain.Enums;
@@ -70,8 +71,7 @@ public sealed class BookingInfrastructureIntegrationTests
         await using (var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
         {
             var appointment = CreateAppointment();
-            await persistence.PersistAsync(appointment,
-                new IdempotencyRecordData(key, hash, 201, "{\"id\":1}", created, expires),
+            await persistence.PersistAsync(appointment, key, hash, 201, id => "{\"id\":1}", created, expires,
                 CancellationToken.None);
             originalAppointmentId = appointment.Id;
             await transaction.CommitAsync();
@@ -90,8 +90,7 @@ public sealed class BookingInfrastructureIntegrationTests
         {
             var replacement = CreateAppointment();
             var replacementCreated = expires.AddMinutes(1);
-            await persistence.PersistAsync(replacement,
-                new IdempotencyRecordData(key, conflictingHash, 201, "{\"id\":2}", replacementCreated, replacementCreated.AddHours(24)),
+            await persistence.PersistAsync(replacement, key, conflictingHash, 201, id => "{\"id\":2}", replacementCreated, replacementCreated.AddHours(24),
                 CancellationToken.None);
             replacementAppointmentId = replacement.Id;
             await transaction.CommitAsync();
@@ -116,8 +115,7 @@ public sealed class BookingInfrastructureIntegrationTests
         await using (var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted))
         {
             var appointment = CreateAppointment();
-            await persistence.PersistAsync(appointment,
-                new IdempotencyRecordData($"rollback-{Guid.NewGuid():N}", new byte[32], 201, "{}", created, expires),
+            await persistence.PersistAsync(appointment, $"rollback-{Guid.NewGuid():N}", new byte[32], 201, _ => "{}", created, expires,
                 CancellationToken.None);
             var rolledBackId = appointment.Id;
             await transaction.RollbackAsync();

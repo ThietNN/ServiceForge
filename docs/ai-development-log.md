@@ -254,3 +254,24 @@
   were run for this checkpoint.
 - Unresolved questions: Booking command orchestration, API contracts, controlled multi-request booking
   concurrency tests, and later tasks remain pending T026 and beyond.
+
+## T026-T027 - Atomic booking orchestration and concurrency verification
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 implementation of T026-T027 on 2026-11-02.
+- Scope: Added the Application CreateAppointment command handler with typed outcomes and the approved
+  transaction sequence: request validation, canonical identity, SQL Server UTC, idempotency lock and
+  immediate lookup, ordered vehicle/dealership locks, locked revalidation, independent lowest-ID
+  allocation, atomic persistence, commit, replay, conflict, and transient failure classification.
+  Added controlled local SQL Server integration tests using separate service scopes/connections for
+  same-key contention, same-key conflict, vehicle conflict, resource allocation, replay lock avoidance,
+  expired-key replacement, rollback, and lock timeout mappings. No HTTP endpoints or T028+ work was added.
+- Verification performed: `dotnet build ServiceForge.slnx --no-restore` passed with zero warnings/errors;
+  the SQL Server integration suite passed 17 tests on the final run and on two consecutive repeat runs;
+  the initial unit suite remains 21 passing tests. Tests assert persisted state and clean up generated
+  records. No credentials, connection values, or private environment investigation details were recorded.
+- Known limitation: The SQL deadlock-victim classification path maps to `BOOKING_TEMPORARILY_UNAVAILABLE`
+  without automatic retry, but no artificial deadlock was induced because doing so would be nondeterministic.
+- Unresolved questions: HTTP endpoint exposure and API contract tests remain pending T028-T031; broader
+  acceptance and regression completion remain pending T032-T037.

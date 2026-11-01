@@ -1,14 +1,9 @@
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.SqlClient;
+using ServiceForge.Application.Abstractions;
 
 namespace ServiceForge.Infrastructure.Persistence.Transactions;
-
-public enum BookingLockKind
-{
-    IdempotencyKey,
-    Vehicle,
-    Dealership
-}
 
 public static class BookingLockResourceNames
 {
@@ -20,22 +15,6 @@ public static class BookingLockResourceNames
             BookingLockKind.Dealership => $"ServiceForge:Booking:Dealership:{value}",
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
-}
-
-public sealed class BookingLockException(int returnCode, string resourceName)
-    : InvalidOperationException($"SQL Server application lock failed with return code {returnCode}.")
-{
-    public int ReturnCode { get; } = returnCode;
-    public string ResourceName { get; } = resourceName;
-}
-
-public interface IBookingLockManager
-{
-    Task AcquireAsync(
-        DbTransaction transaction,
-        BookingLockKind kind,
-        string value,
-        CancellationToken cancellationToken = default);
 }
 
 public sealed class SqlServerBookingLockManager : IBookingLockManager
@@ -71,7 +50,15 @@ public sealed class SqlServerBookingLockManager : IBookingLockManager
         parameter.Value = resourceName;
         command.Parameters.Add(parameter);
 
-        var result = await command.ExecuteScalarAsync(cancellationToken);
+        object? result;
+        try
+        {
+            result = await command.ExecuteScalarAsync(cancellationToken);
+        }
+        catch (SqlException exception) when (exception.Number == 1205)
+        {
+            throw new BookingTransientFailureException("SQL Server reported a booking deadlock victim.", exception);
+        }
         var returnCode = Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
         if (returnCode < 0)
         {
