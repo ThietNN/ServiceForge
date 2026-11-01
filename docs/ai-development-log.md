@@ -268,7 +268,8 @@
   same-key contention, same-key conflict, vehicle conflict, resource allocation, replay lock avoidance,
   expired-key replacement, rollback, and lock timeout mappings. No HTTP endpoints or T028+ work was added.
 - Verification performed: `dotnet build ServiceForge.slnx --no-restore` passed with zero warnings/errors;
-  the SQL Server integration suite passed 17 tests on the final run and on two consecutive repeat runs;
+  the SQL Server integration suite passed 18 tests on the final run after adding cross-dealership vehicle
+  serialization coverage; the prior 17-test suite also passed on two consecutive repeat runs;
   the initial unit suite remains 21 passing tests. Tests assert persisted state and clean up generated
   records. No credentials, connection values, or private environment investigation details were recorded.
 - Known limitation: The SQL deadlock-victim classification path maps to `BOOKING_TEMPORARILY_UNAVAILABLE`

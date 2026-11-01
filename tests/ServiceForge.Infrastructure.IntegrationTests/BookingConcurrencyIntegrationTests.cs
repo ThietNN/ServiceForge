@@ -59,6 +59,26 @@ public sealed class BookingConcurrencyIntegrationTests
     }
 
     [Fact]
+    public async Task Same_vehicle_overlap_is_serialized_across_different_dealerships()
+    {
+        var keys = new[] { Key(), Key() };
+        try
+        {
+            var results = await RunConcurrently(
+                Command(1, 1, 1, 1, "2027-01-12T09:00:00Z", keys[0]),
+                Command(1, 1, 2, 2, "2027-01-12T09:30:00Z", keys[1]));
+
+            Assert.Single(results, result => result.IsSuccess);
+            Assert.Single(results, result => result.ErrorCode == "VEHICLE_TIME_CONFLICT");
+            Assert.Equal(1, await CountAppointmentsAsync(keys));
+        }
+        finally
+        {
+            await CleanupAsync(keys);
+        }
+    }
+
+    [Fact]
     public async Task Different_requests_using_the_same_key_return_one_success_and_one_conflict()
     {
         var key = Key();
