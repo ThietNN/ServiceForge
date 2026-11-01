@@ -103,3 +103,18 @@
   idempotency workflow, composite foreign keys, indexes, P0/P1 boundaries, and no unexpected files;
   ran documentation consistency checks and `git diff --check`.
 - Unresolved questions: None for the approved architecture design checkpoint.
+
+## T002D — Approved API contract and architecture decisions
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex.
+- Scope: Created `specs/001-service-booking/contracts/api.md` for the five approved P0 endpoints and
+  seven Accepted ADRs under `docs/adr/`. The documents preserve the approved schema, transaction,
+  idempotency, time, testing, architecture, and AI-governance decisions. No application code or
+  migrations were created.
+- Verification performed: Read the constitution, feature specification, plan, data model, checklist,
+  and AI log; confirmed no existing approved ADR location; checked the contract for exactly five
+  endpoints, approved error mappings, pagination, UTC response examples, idempotency behavior, and the
+  P0 authentication limitation; checked all seven ADRs for required sections and consistency with the
+  approved documents; ran documentation consistency checks and `git diff --check`.
+- Unresolved questions: None for T002D.
