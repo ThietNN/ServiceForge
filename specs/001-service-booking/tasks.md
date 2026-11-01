@@ -11,7 +11,7 @@ description: "Approved implementation task breakdown for ServiceForge P0 service
 and ADRs 001–007.
 
 **Scope**: Backend-only P0 automotive service booking. T005 records the authorization gate; the
-current user authorization covers the T028-T031 HTTP API batch.
+current user authorization covers the T032-T035 acceptance and regression batch.
 
 **Task format**: Every task includes its ID, dependencies, relevant paths or artifacts, verification
 criteria, and explicit P0 boundary.
@@ -81,10 +81,10 @@ criteria, and explicit P0 boundary.
 
 **Purpose**: Complete reviewable tests, acceptance verification, documentation, and delivery readiness.
 
-- [ ] T032 Implement deterministic Domain and Application unit tests in `tests/ServiceForge.UnitTests/`; depends on T009, T010, T016–T020, and T021; verify time, duration, intervals, ownership, allocation, canonical identity, validation, error mapping, and pagination rules; Coverage: US1–US6; P0 boundary: no claim of passing tests without execution.
-- [ ] T033 Implement API integration tests using `WebApplicationFactory` in `tests/ServiceForge.Api.IntegrationTests/`; depends on T028–T031 and T015; verify all five endpoints, HTTP contracts, Problem Details, Location header, UTC response data, pagination, and P0 exclusions; Coverage: US1/US5/US6; P0 boundary: no authentication/JWT tests because authentication is excluded from P0.
-- [ ] T034 Verify all 24 mandatory acceptance scenarios in `tests/ServiceForge.UnitTests/`, `tests/ServiceForge.Api.IntegrationTests/`, and `tests/ServiceForge.Infrastructure.IntegrationTests/`; depends on T027, T032, and T033; verify successful assignment, resource fallback/errors, ownership, cross-dealership conflicts, adjacency, time boundaries, horizon/DST, concurrency, idempotency, rollback, pagination, and Problem Details; Coverage: US1–US6; P0 boundary: do not add P1 lifecycle scenarios.
-- [ ] T035 Execute the full regression suite and correct failures in the affected `src/` and `tests/` paths; depends on T034; verify the complete suite actually runs and all corrections remain traceable to approved requirements; P0 boundary: do not weaken tests, bypass SQL Server verification, or introduce unapproved behavior.
+- [x] T032 Implement deterministic Domain and Application unit tests in `tests/ServiceForge.UnitTests/`; depends on T009, T010, T016–T020, and T021; verified time, duration, intervals, ownership, allocation, canonical identity, validation, error mapping, pagination, and DST regression coverage; Coverage: US1–US6; P0 boundary: no claim of passing tests without execution.
+- [x] T033 Implement API integration tests using `WebApplicationFactory` in `tests/ServiceForge.Api.IntegrationTests/`; depends on T028–T031 and T015; verified all five endpoints, HTTP contracts, Problem Details, Location header, UTC response data, pagination, ownership, conflict, replay, and P0 exclusions; Coverage: US1/US5/US6; P0 boundary: no authentication/JWT tests because authentication is excluded from P0.
+- [x] T034 Verify all 24 mandatory acceptance scenarios using the traceability matrix in `docs/acceptance-traceability.md`; depends on T027, T032, and T033; verified all 24 scenarios as covered with executed unit, SQL Server, and HTTP evidence; Coverage: US1–US6; P0 boundary: do not add P1 lifecycle scenarios.
+- [x] T035 Execute the full regression suite and correct failures in the affected `src/` and `tests/` paths; depends on T034; verified restore, build, all test projects, NuGet audit, diff checks, and three consecutive concurrency runs; no tests were weakened or SQL Server verification bypassed; P0 boundary: no unapproved behavior.
 - [ ] T036 Write README, setup instructions, and architectural tradeoffs in `README.md` and `docs/`; depends on T035; verify setup documents `net10.0`, dedicated local SQL Server prerequisites, Spec Kit feature context, lock/idempotency limitations, and no unauthorized infrastructure assumptions; P0 boundary: documentation only and no Docker configuration unless separately authorized.
 - [ ] T037 Complete final submission readiness review and Git checkpoint in `docs/ai-development-log.md`, the approved artifacts, and Git metadata; depends on T005 and T036; verify requirements traceability, executed verification evidence, clean diff, no unexpected files, and explicit implementation authorization status before release; P0 boundary: do not claim completion or authorization without human approval.
 

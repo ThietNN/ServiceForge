@@ -99,6 +99,21 @@ public sealed class BookingBusinessRulesTests
     }
 
     [Fact]
+    public void Dst_transition_preserves_elapsed_utc_duration()
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        var startUtc = new DateTime(2026, 3, 8, 6, 30, 0, DateTimeKind.Utc);
+        var endUtc = startUtc.AddHours(1);
+
+        var startLocal = TimeZoneInfo.ConvertTimeFromUtc(startUtc, timeZone);
+        var endLocal = TimeZoneInfo.ConvertTimeFromUtc(endUtc, timeZone);
+
+        Assert.Equal(TimeSpan.FromHours(1), endUtc - startUtc);
+        Assert.Equal(new DateTime(2026, 3, 8, 1, 30, 0), startLocal);
+        Assert.Equal(new DateTime(2026, 3, 8, 3, 30, 0), endLocal);
+    }
+
+    [Fact]
     public void Vehicle_rules_enforce_ownership_and_ignore_cancelled_appointments()
     {
         var vehicle = new Vehicle(1, 2, "SF-1", NowUtc);

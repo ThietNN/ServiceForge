@@ -16,7 +16,7 @@ internal static class ApiProblem
         string detail,
         IReadOnlyDictionary<string, string[]>? errors = null)
     {
-        if (statusCode is 409 or 503)
+        if (code is "REQUEST_IN_PROGRESS" or "BOOKING_TEMPORARILY_UNAVAILABLE")
         {
             context.Response.Headers.RetryAfter = "2";
         }

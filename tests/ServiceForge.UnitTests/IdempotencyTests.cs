@@ -31,4 +31,18 @@ public sealed class IdempotencyTests
             CanonicalRequestHasher.ComputeHash(original),
             CanonicalRequestHasher.ComputeHash(changed));
     }
+
+    [Fact]
+    public void Equivalent_offset_representations_share_the_same_identity()
+    {
+        var firstInstant = DateTimeOffset.Parse("2030-01-02T09:00:00+07:00").UtcDateTime;
+        var equivalentInstant = DateTimeOffset.Parse("2030-01-02T02:00:00Z").UtcDateTime;
+
+        var first = new CanonicalRequestIdentity(1, 2, 3, 4, firstInstant);
+        var equivalent = new CanonicalRequestIdentity(1, 2, 3, 4, equivalentInstant);
+
+        Assert.Equal(
+            CanonicalRequestHasher.ComputeHash(first),
+            CanonicalRequestHasher.ComputeHash(equivalent));
+    }
 }

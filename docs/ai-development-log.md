@@ -295,3 +295,27 @@
   NuGet vulnerability audit reported no vulnerable packages, and `git diff --check` passed. No credentials,
   connection values, or private environment investigation details were recorded.
 - Unresolved questions: Final acceptance/regression and delivery documentation remain pending T032-T037.
+
+## T032-T035 - P0 acceptance audit and regression verification
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 verification and regression work for T032-T035 on
+  2026-11-02.
+- Scope: Added the 24-scenario acceptance traceability matrix at `docs/acceptance-traceability.md`,
+  added deterministic DST/elapsed-duration and equivalent-offset identity tests, expanded HTTP assertions,
+  and corrected Retry-After mapping to the two approved transient error codes. No T036-T037 delivery work,
+  P1 functionality, authentication, frontend, or additional endpoint was added.
+- Verification performed: `dotnet restore ServiceForge.slnx` passed; the solution build passed with zero
+  warnings/errors; 23 unit tests, 6 WebApplicationFactory HTTP tests, and 18 SQL Server integration tests
+  passed. The controlled concurrency class passed 9 tests in each of three consecutive runs. A named
+  semaphore serializes the two SQL-backed integration test hosts against the shared test database; the
+  prior cross-host lock race was eliminated without changing production semantics. The NuGet vulnerability
+  audit reported no vulnerable packages and `git diff --check` passed. No credentials, connection values,
+  or private environment investigation details were recorded.
+- Coverage status: All 24 mandatory scenarios are covered in the matrix. The lost-response scenario uses
+  a deterministic post-commit response-discard simulation and verifies the persisted appointment and
+  current idempotency record before retry. The exhaustive HTTP mapping test exercises every approved
+  public code/status mapping and both Retry-After cases. SQL deadlock classification remains implemented
+  without an artificial deadlock claim.
+- Unresolved questions: T036-T037 delivery documentation and final submission readiness remain pending.
