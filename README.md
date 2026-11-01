@@ -18,6 +18,20 @@ P0 exposes five approved endpoints: create and retrieve appointments, and read p
 vehicles, dealerships, and service types. Authentication, Angular, Playwright, Docker configuration,
 microservices, message queues, and P1 lifecycle workflows are out of scope.
 
+Reviewer documentation:
+
+- [System design](docs/SYSTEM-DESIGN.md) — architecture, data flow, concurrency, idempotency,
+  observability boundaries, and AI-assisted engineering process.
+- [Reviewer guide](docs/REVIEWER-GUIDE.md) — Windows setup, migration, seeded demo, API walkthrough,
+  idempotency/conflict checks, and test commands.
+
+## Reviewer quick start
+
+For a clean Windows walkthrough, use the [Reviewer Guide](docs/REVIEWER-GUIDE.md). In brief: set an
+environment-only SQL Server connection, apply `20261101173028_InitialCreate` with `dotnet ef database
+update`, start `ServiceForge.Api`, and use the guide's dynamic PowerShell timestamp block to create
+an appointment against the seeded reference data.
+
 Booking uses one SQL Server transaction at `READ COMMITTED` with `READ_COMMITTED_SNAPSHOT OFF`.
 Transaction-owned exclusive application locks use the global order **Idempotency Key → Vehicle →
 Dealership**, with a five-second timeout per lock. Matching idempotency requests replay the stored
@@ -161,4 +175,21 @@ cross-platform compatibility.
 
 The approved acceptance matrix in `docs/acceptance-traceability.md` records all 24 mandatory
 scenarios as covered. T036–T037 are documentation and delivery-readiness tasks; the retrospective
-AI decision/assumption audit remains intentionally separate and has not been started.
+AI decision/assumption audit and Batch R1 corrections are recorded in `docs/ai-development-log.md`.
+
+## AI Collaboration Narrative
+
+ServiceForge follows specification-driven development: the ratified constitution, approved feature
+specification, architecture plan, data model, API contract, ADRs, and task list define the work.
+The owner approved the architectural decisions and bounded implementation batches before coding.
+
+Codex was used for bounded, reviewable tasks. Generated changes were checked against the approved
+artifacts, reviewed for architecture and security, and validated with executed unit, HTTP, and real
+SQL Server integration tests. The retrospective submission audit identified four corrective gaps;
+Batch R1 addressed stale post-lock time, permissive timestamp parsing, governance wording, and
+OpenAPI execution coverage, with results recorded in `docs/ai-development-log.md`.
+
+The owner and reviewers retain responsibility for final engineering quality and approval. AI
+assistance does not replace requirements ownership, code review, security review, or executed test
+evidence. Known limitations, including unverified complete macOS/Linux execution and the absence of
+an induced SQL deadlock test, remain explicitly documented.
