@@ -17,18 +17,36 @@ the [constitution](../.specify/memory/constitution.md), and the approved [implem
 
 ## Architecture
 
-```text
-                         ServiceForge.Api
-                       /                  \\
-                      v                    v
-          ServiceForge.Application    ServiceForge.Infrastructure
-                      |                    |
-                      v                    v
-                 ServiceForge.Domain  ServiceForge.Domain
+```mermaid
+flowchart LR
+    Client[HTTP Client]
+    Api[ServiceForge.Api<br/>REST endpoints, HTTP responses,<br/>Problem Details, OpenAPI]
+    App[ServiceForge.Application<br/>CQRS/MediatR, validation,<br/>booking orchestration]
+    Domain[ServiceForge.Domain<br/>entities, statuses,<br/>interval and business rules]
+    Infra[ServiceForge.Infrastructure<br/>EF Core persistence, SQL transactions,<br/>application locks, queries]
+    Sql[(SQL Server)]
 
-  API composes Application and Infrastructure at the application boundary.
-  Domain depends on neither presentation nor infrastructure.
+    Client -->|HTTP request/response| Api
+    Api -->|runtime dispatch| App
+    App -->|runtime persistence abstractions| Infra
+    Infra -->|EF Core, transactions, sp_getapplock| Sql
+    App -->|domain rules and entities| Domain
+
+    Api -.->|compile-time reference| App
+    App -.->|compile-time reference| Domain
+    Infra -.->|compile-time reference| App
+    Infra -.->|compile-time reference| Domain
+
+    classDef boundary fill:#eef6ff,stroke:#2b6cb0,color:#111;
+    classDef storage fill:#fff7e6,stroke:#b7791f,color:#111;
+    class Api,App,Domain,Infra boundary;
+    class Sql storage;
 ```
+
+This diagram separates the runtime request path from compile-time dependency direction. The API
+composes Application and Infrastructure, while Domain remains independent of both presentation and
+infrastructure. Infrastructure owns SQL Server and EF Core concerns; Application owns use-case
+orchestration through abstractions.
 
 The four production projects are:
 
@@ -43,6 +61,71 @@ The four production projects are:
   seeding.
 
 ## Booking data flow
+
+```mermaid
+flowchart TD
+    Receive[Receive POST /api/appointments<br/>request + Idempotency-Key]
+    Shape{Request shape and<br/>explicit-offset syntax valid?}
+    RejectValidation[Return validation Problem Details]
+    Begin[Begin one SQL Server transaction<br/>READ COMMITTED<br/>READ_COMMITTED_SNAPSHOT OFF]
+    IdemLock[Acquire transaction-owned exclusive<br/>Idempotency-Key application lock<br/>5-second timeout]
+    LockFailure{Lock acquired?}
+    InProgress[Return 409 REQUEST_IN_PROGRESS<br/>or 503 temporary unavailable]
+    ClockIdentity[Read SQL Server UTC clock;<br/>normalize UTC instant and compute<br/>canonical request hash]
+    Lookup[Check existing idempotency record]
+    Replay{Unexpired record?}
+    Match{Request hash matches?}
+    ReplayCommit[Commit and replay stored 201 body<br/>and Location]
+    KeyConflict[Commit and return 409<br/>IDEMPOTENCY_KEY_CONFLICT]
+    ResourceLocks[Acquire Vehicle, then Dealership<br/>application locks<br/>5-second timeout per lock]
+    ResourceLockFailure{Locks acquired?}
+    Temporary[Return 503<br/>BOOKING_TEMPORARILY_UNAVAILABLE]
+    Revalidate[Read authoritative SQL UTC time and revalidate:<br/>reference data, ownership, local time window,<br/>horizon, duration and mutable booking facts]
+    VehicleOverlap{Global vehicle overlap?}
+    VehicleConflict[Return 409 VEHICLE_TIME_CONFLICT]
+    Availability[Check qualified technician and compatible bay<br/>for the entire half-open interval]
+    Allocate{Eligible resources available?}
+    ResourceConflict[Return approved 409 resource error]
+    Select[Select lowest-ID available technician<br/>and lowest-ID compatible bay]
+    Persist[Atomically persist confirmed appointment,<br/>assignments and successful idempotency record]
+    Commit[Commit transaction]
+    Created[Return 201 Created,<br/>Location and UTC timestamps]
+    Rollback[Rollback on handled failure<br/>and dispose transaction]
+    Uncertain[Commit outcome may be uncertain;<br/>do not assume rollback or auto-retry.<br/>Retry with the original key.]
+
+    Receive --> Shape
+    Shape -->|No| RejectValidation
+    Shape -->|Yes| Begin
+    Begin --> IdemLock --> LockFailure
+    LockFailure -->|No| InProgress
+    LockFailure -->|Yes| ClockIdentity --> Lookup --> Replay
+    Replay -->|Yes| Match
+    Match -->|Yes| ReplayCommit
+    Match -->|No| KeyConflict
+    Replay -->|No: new or expired| ResourceLocks --> ResourceLockFailure
+    ResourceLockFailure -->|No| Temporary
+    ResourceLockFailure -->|Yes| Revalidate --> VehicleOverlap
+    VehicleOverlap -->|Yes| VehicleConflict
+    VehicleOverlap -->|No| Availability --> Allocate
+    Allocate -->|No| ResourceConflict
+    Allocate -->|Yes| Select --> Persist --> Commit --> Created
+
+    InProgress -.-> Rollback
+    Temporary -.-> Rollback
+    VehicleConflict -.-> Rollback
+    ResourceConflict -.-> Rollback
+    Commit -.->|exception after commit attempt| Uncertain
+
+    Limitation[Application locks protect writers<br/>that follow this protocol only;<br/>direct SQL writers can bypass it]
+    ResourceLocks -.-> Limitation
+```
+
+This workflow reflects the handler and infrastructure order: syntax is checked before the
+transaction, the idempotency lock and lookup happen first, matching replay and conflict short-circuit
+without resource locks, and new or expired requests acquire Vehicle then Dealership locks before
+mutable booking validation. Failures roll back through the transaction lifecycle, while a commit
+exception remains an uncertain outcome rather than proof of rollback. The application-lock protocol
+does not protect direct SQL writers that bypass the application.
 
 1. `POST /api/appointments` validates the request shape and required `Idempotency-Key`.
 2. The application parses the explicit-offset ISO 8601 start and derives a typed canonical request
