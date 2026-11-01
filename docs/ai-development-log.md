@@ -21,3 +21,30 @@
   principle count, and the required approved topics; confirmed no application files, projects,
   migrations, Docker files, or other specification documents were modified.
 - Unresolved questions: None for T002A.
+
+## T002B — Approved ServiceForge P0 feature specification
+
+- Date: 2026-11-01
+- AI assistance: OpenAI Codex using the repository's `speckit-specify` workflow guidance.
+- Scope: Created `specs/001-service-booking/spec.md` from the supplied approved P0 requirements,
+  preserving the official Spec Kit structure. Added the required requirements-quality checklist.
+  No application implementation or other design artifact was changed.
+- Verification performed: Inspected `AGENTS.md`, the ratified constitution, the official specification
+  and checklist templates, the existing feature directory, and Git status; confirmed no extension
+  hooks were configured; verified the specification has six user stories, 96 uniquely identified
+  functional requirements, 24 mandatory acceptance scenarios, required error mappings, exclusions,
+  entities, assumptions, and measurable success criteria; checked for unresolved placeholders and
+  contradictions against the constitution; ran `git diff --check`.
+- Unresolved questions: None for the supplied approved requirements.
+
+## T002B.1 — Reviewed specification wording correction
+
+- Date: 2026-11-01
+- AI assistance: OpenAI Codex using the repository's `speckit-specify` workflow guidance.
+- Scope: Clarified that Spec Kit story priority `P1` means high-priority user story and is distinct
+  from ServiceForge's deferred P1 implementation scope. Refined the concurrent-booking acceptance
+  scenario so simultaneous requests are not implied to be universally mutually exclusive.
+- Verification performed: Confirmed the specification retains six user stories, all 96 functional
+  requirements, and all 24 mandatory acceptance scenarios; checked the corrected priority and
+  concurrency wording; verified the requirements checklist remains included; ran `git diff --check`.
+- Unresolved questions: None.
