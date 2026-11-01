@@ -14,8 +14,8 @@ public sealed class ServiceType
         CreatedAtUtc = createdAtUtc;
     }
 
-    public long Id { get; }
-    public string Name { get; }
-    public int DurationMinutes { get; }
-    public DateTime CreatedAtUtc { get; }
+public long Id { get; private set; }
+public string Name { get; private set; }
+public int DurationMinutes { get; private set; }
+public DateTime CreatedAtUtc { get; private set; }
 }

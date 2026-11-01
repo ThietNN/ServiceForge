@@ -160,3 +160,57 @@
   batch; the warning remains for review before release.
 - Unresolved questions: WebApplicationFactory, Testcontainers, EF Core DbContext, migrations, and
   booking transaction implementation remain scheduled for later tasks and were not started.
+
+## T011-T015 — SQL Server persistence foundation batch
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 implementation of T011-T015 on 2026-11-02.
+- Scope: Added the EF Core SQL Server DbContext and Fluent configurations for exactly the approved ten
+  tables; added composite ownership/resource foreign keys, checks, indexes, non-cascading deletes,
+  the filtered unique AppointmentId idempotency index, and deterministic reference-data seeding;
+  generated and reviewed the `InitialCreate` Code First migration; added environment-driven design-time
+  migration support; and created a separate Testcontainers SQL Server integration-test project.
+  No T016+ booking rules, transaction locks, API endpoints, Docker files, or runtime infrastructure
+  were added.
+- Package versions: upgraded direct `Microsoft.Data.SqlClient` to 6.1.8; retained
+  `Microsoft.EntityFrameworkCore.SqlServer` 10.0.14; added `Microsoft.EntityFrameworkCore.Design`
+  10.0.14; added `Testcontainers.MsSql` 4.16.0. EF CLI was updated to 10.0.14.
+- Advisory remediation: `Microsoft.EntityFrameworkCore.SqlServer` 10.0.14 resolved
+  `Microsoft.Data.SqlClient` 6.1.7 and `System.Security.Cryptography.Pkcs` 9.0.11. The explicit
+  compatible `Microsoft.Data.SqlClient` 6.1.8 reference now resolves `System.Security.Cryptography.Pkcs`
+  9.0.21. `dotnet list ServiceForge.slnx package --include-transitive --vulnerable` reports no
+  vulnerable packages.
+- Verification performed: Ran `dotnet list ServiceForge.slnx package --include-transitive --vulnerable`,
+  `dotnet nuget why ServiceForge.slnx System.Security.Cryptography.Pkcs`, `dotnet restore ServiceForge.slnx`,
+  `dotnet build ServiceForge.slnx --no-restore` with zero errors and warnings, six existing unit tests
+  with all six passing, migration static checks confirming ten tables, required names, varchar statuses,
+  no cascade actions, no forbidden tables/states, and the filtered unique idempotency index, plus
+  `git diff --check`.
+- Blocker: `docker version` could not run because Docker is not installed. T015 integration tests were
+  not executed and T015 remains unchecked; no SQL Server/Testcontainers result is claimed.
+- Unresolved questions: The real-container migration, schema, seed, READ_COMMITTED_SNAPSHOT, and
+  constraint tests require Docker availability and remain pending T015 verification.
+
+## T015 — Local SQL Server integration completion
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized replacing the unavailable Testcontainers execution path
+  with the local SQL Server instance for T015.
+- Environment discovery: A local SQL Server connection using Windows Authentication succeeded, and the
+  dedicated `ServiceForge_IntegrationTests` database was created/accessed. No credentials or
+  credential-bearing connection strings were recorded.
+- Scope: Removed the Testcontainers package and Docker-specific fixture usage. The integration fixture
+  now reads `SERVICEFORGE_TEST_SQLSERVER_CONNECTION`, applies the initial migration, and validates the
+  ten application tables, seed data, non-cascading foreign keys, unique idempotency index, and
+  `READ_COMMITTED_SNAPSHOT OFF`. ADR-006 and the plan/tasks now document local SQL Server as the
+  current authorized path while preserving Testcontainers as historical context.
+- Verification performed: The first real run found the expected EF metadata table and corrected the
+  assertion to exclude `__EFMigrationsHistory`; the rerun passed both integration tests. Ran
+  `dotnet restore ServiceForge.slnx`, `dotnet build ServiceForge.slnx --no-restore` with zero warnings
+  and errors, six unit tests with all six passing, two SQL Server integration tests with both passing,
+  the NuGet vulnerability audit with no vulnerable packages, `dotnet nuget why` confirming patched
+  SqlClient resolution, and `git diff --check`.
+- Unresolved questions: None for T015. Later concurrency and booking behavior remain scheduled for
+  T016 and later tasks.

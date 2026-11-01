@@ -15,9 +15,9 @@ public sealed class ServiceBay
         CreatedAtUtc = createdAtUtc;
     }
 
-    public long Id { get; }
-    public long DealershipId { get; }
-    public string Name { get; }
-    public bool IsActive { get; }
-    public DateTime CreatedAtUtc { get; }
+public long Id { get; private set; }
+public long DealershipId { get; private set; }
+public string Name { get; private set; }
+public bool IsActive { get; private set; }
+public DateTime CreatedAtUtc { get; private set; }
 }

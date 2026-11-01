@@ -31,8 +31,9 @@ injection, Swagger/OpenAPI, and structured `ILogger` logging.
 **Storage**: SQL Server with EF Core; UTC `datetime2(7)` timestamps and the ten-table model in
 `data-model.md`.
 
-**Testing**: xUnit, `WebApplicationFactory`, real SQL Server through Testcontainers, separate
-connections and controlled synchronization for concurrency tests.
+**Testing**: xUnit, `WebApplicationFactory`, real local SQL Server through the
+`SERVICEFORGE_TEST_SQLSERVER_CONNECTION` environment variable, separate connections, and controlled
+synchronization for concurrency tests.
 
 **Target Platform**: Backend-only ASP.NET Core Web API. No Angular, Playwright, microservices, or
 message queues.
@@ -65,7 +66,7 @@ No additional scale assumption is made.
 | Business integrity | PASS | Ownership, dealership boundaries, resource eligibility, half-open conflicts, UTC/local-time rules, and P0/P1 boundaries are preserved. |
 | Transaction and concurrency | PASS | The workflow uses READ COMMITTED, `READ_COMMITTED_SNAPSHOT OFF`, transaction-owned `sp_getapplock`, the approved lock order, five-second timeouts, revalidation, atomic persistence, and no automatic transaction retry. |
 | API and data | PASS | The five approved endpoints, pagination, Problem Details mappings, UTC behavior, and required idempotency key are preserved. |
-| Quality | PASS | Unit, API integration, real SQL Server Testcontainers, concurrency, rollback, timezone, ownership, allocation, and HTTP contract testing are planned. |
+| Quality | PASS | Unit, API integration, real local SQL Server, concurrency, rollback, timezone, ownership, allocation, and HTTP contract testing are planned. |
 | Authorization | PASS | This plan creates documentation only. It does not authorize code, migrations, Docker configuration, or runtime infrastructure. |
 
 **Post-design gate**: PASS. The data model and workflow below do not add a DealershipServiceType
@@ -124,7 +125,7 @@ Domain and contains use-case orchestration without depending on presentation or 
 - Provides repository abstractions only for focused boundaries justified by the booking workflow; it
   does not introduce a generic repository layer by default.
 - Provides reference-data seeding for the demonstration without adding a DealershipServiceType table.
-- Contains SQL Server-specific behavior and Testcontainers test support; no SQL overlap trigger is
+- Contains SQL Server-specific behavior and local SQL Server integration-test support; no SQL overlap trigger is
   planned for P0.
 
 ### ServiceForge.Api
@@ -267,8 +268,8 @@ where applicable. The approved mappings are:
   eligibility, error mapping, and pagination rules.
 - API integration tests use xUnit and `WebApplicationFactory` to verify endpoint behavior, HTTP status
   codes, Location headers, Problem Details, UTC representations, and Swagger/OpenAPI documentation.
-- Database integration tests use real SQL Server through Testcontainers; EF Core InMemory is not proof
-  of SQL Server concurrency correctness.
+- Database integration tests use real local SQL Server through `SERVICEFORGE_TEST_SQLSERVER_CONNECTION`;
+  EF Core InMemory and SQLite are not proof of SQL Server concurrency correctness.
 - Concurrency tests use separate database connections and controlled synchronization to verify vehicle
   conflicts, resource allocation, idempotency-key contention, lock timeout mapping, deadlock mapping,
   atomic rollback, and lost-response retry behavior.
@@ -292,7 +293,7 @@ where applicable. The approved mappings are:
 6. Implement API endpoints, Problem Details mapping, pagination, Location behavior, Swagger/OpenAPI,
    and structured logging.
 7. Add deterministic unit tests and API integration tests.
-8. Add Testcontainers SQL Server integration and controlled concurrency tests.
+8. Add dedicated local SQL Server integration and controlled concurrency tests.
 9. Execute the complete acceptance scenario set and document known limitations.
 
 No step authorizes implementation in this documentation task; implementation requires explicit

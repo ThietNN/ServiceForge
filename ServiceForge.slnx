@@ -6,6 +6,7 @@
     <Project Path="src/ServiceForge.Infrastructure/ServiceForge.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ServiceForge.Infrastructure.IntegrationTests/ServiceForge.Infrastructure.IntegrationTests.csproj" />
     <Project Path="tests/ServiceForge.UnitTests/ServiceForge.UnitTests.csproj" />
   </Folder>
 </Solution>

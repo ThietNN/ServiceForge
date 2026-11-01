@@ -14,8 +14,8 @@ public sealed class Vehicle
         CreatedAtUtc = createdAtUtc;
     }
 
-    public long Id { get; }
-    public long CustomerId { get; }
-    public string RegistrationNumber { get; }
-    public DateTime CreatedAtUtc { get; }
+public long Id { get; private set; }
+public long CustomerId { get; private set; }
+public string RegistrationNumber { get; private set; }
+public DateTime CreatedAtUtc { get; private set; }
 }

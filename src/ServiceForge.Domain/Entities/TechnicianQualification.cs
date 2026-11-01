@@ -11,6 +11,6 @@ public sealed class TechnicianQualification
         ServiceTypeId = serviceTypeId;
     }
 
-    public long TechnicianId { get; }
-    public long ServiceTypeId { get; }
+public long TechnicianId { get; private set; }
+public long ServiceTypeId { get; private set; }
 }

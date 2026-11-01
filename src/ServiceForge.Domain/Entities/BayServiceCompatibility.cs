@@ -11,6 +11,6 @@ public sealed class BayServiceCompatibility
         ServiceTypeId = serviceTypeId;
     }
 
-    public long ServiceBayId { get; }
-    public long ServiceTypeId { get; }
+public long ServiceBayId { get; private set; }
+public long ServiceTypeId { get; private set; }
 }

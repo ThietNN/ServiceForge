@@ -10,8 +10,8 @@ description: "Approved implementation task breakdown for ServiceForge P0 service
 **Prerequisites**: `spec.md`, `plan.md`, `data-model.md`, `contracts/api.md`, requirements checklist,
 and ADRs 001–007.
 
-**Scope**: Backend-only P0 automotive service booking. T005 records explicit authorization for the
-T006-T010 foundation batch; later implementation remains pending.
+**Scope**: Backend-only P0 automotive service booking. T005 records the authorization gate; the
+current user authorization covers the T011-T015 persistence batch.
 
 **Task format**: Every task includes its ID, dependencies, relevant paths or artifacts, verification
 criteria, and explicit P0 boundary.
@@ -32,7 +32,7 @@ criteria, and explicit P0 boundary.
 
 - [x] T006 Create `ServiceForge.slnx` and the four `src/ServiceForge.Api/`, `src/ServiceForge.Application/`, `src/ServiceForge.Domain/`, and `src/ServiceForge.Infrastructure/` .NET 10 production projects; depends on T005; verify all projects target `net10.0` and no frontend project exists; P0 boundary: exactly four approved production projects, no Angular, Playwright, microservices, or message queues.
 - [x] T007 Configure project references and built-in dependency injection in `src/ServiceForge.slnx`, `src/ServiceForge.Api/Program.cs`, and project files; depends on T006; verify dependencies point inward, Domain has no Infrastructure/Presentation reference, and Infrastructure composition occurs at the API boundary; P0 boundary: preserve Clean Architecture and do not add unapproved frameworks.
-- [x] T008 Establish approved package dependencies and configuration in `src/ServiceForge.Api/*.csproj`, `src/ServiceForge.Application/*.csproj`, `src/ServiceForge.Infrastructure/*.csproj`, and `src/ServiceForge.Api/appsettings*.json`; depends on T007; verify EF Core SQL Server, MediatR, FluentValidation, Swagger/OpenAPI, structured logging, xUnit/WebApplicationFactory, and Testcontainers are configured without unrelated dependencies; P0 boundary: no authentication/JWT, Angular, Playwright, or runtime infrastructure. Batch foundation packages and xUnit tests are configured; WebApplicationFactory and Testcontainers remain scheduled for later integration tasks.
+- [x] T008 Establish approved package dependencies and configuration in `src/ServiceForge.Api/*.csproj`, `src/ServiceForge.Application/*.csproj`, `src/ServiceForge.Infrastructure/*.csproj`, and `src/ServiceForge.Api/appsettings*.json`; depends on T007; verify EF Core SQL Server, MediatR, FluentValidation, Swagger/OpenAPI, structured logging, xUnit/WebApplicationFactory, and approved SQL Server integration testing are configured without unrelated dependencies; P0 boundary: no authentication/JWT, Angular, Playwright, or runtime infrastructure. Batch foundation packages and xUnit tests are configured; WebApplicationFactory remains scheduled for later integration tasks.
 - [x] T009 [P] Define Domain entities, value objects, and approved enums in `src/ServiceForge.Domain/Entities/`, `src/ServiceForge.Domain/ValueObjects/`, and `src/ServiceForge.Domain/Enums/`; depends on T007; verify appointment/resource/status invariants and framework independence; P0 boundary: model only approved P0 behavior plus explicitly approved P1 schema anticipation.
 - [x] T010 Define Application CQRS contracts and validation in `src/ServiceForge.Application/Common/`, `src/ServiceForge.Application/Appointments/`, and `src/ServiceForge.Application/ReferenceData/`; depends on T007 and T009; verify MediatR commands/queries, FluentValidation rules, result/error contracts, and focused abstractions are traceable to `spec.md` and `contracts/api.md`; P0 boundary: no generic repository or unapproved use case.
 
@@ -40,11 +40,11 @@ criteria, and explicit P0 boundary.
 
 **Purpose**: Implement and verify the approved ten-table SQL Server model using EF Core Code First.
 
-- [ ] T011 Implement the EF Core DbContext and entity mappings in `src/ServiceForge.Infrastructure/Persistence/ServiceForgeDbContext.cs` and `src/ServiceForge.Infrastructure/Persistence/Configurations/`; depends on T008 and T009; verify exactly Customer, Vehicle, Dealership, ServiceType, Technician, ServiceBay, TechnicianQualification, BayServiceCompatibility, Appointment, and IdempotencyRecord are mapped; P0 boundary: no DealershipServiceType table and no extra persistence table.
-- [ ] T012 Implement composite foreign keys, checks, indexes, and non-cascading relationships in `src/ServiceForge.Infrastructure/Persistence/Configurations/`; depends on T011; verify `(VehicleId, CustomerId)`, `(TechnicianId, DealershipId)`, `(ServiceBayId, DealershipId)`, interval/duration/status/assignment/completion checks, conflict-search indexes, and no cascade deletes; P0 boundary: no overlap trigger or exclusion constraint.
-- [ ] T013 Generate and review EF Core Code First migrations in `src/ServiceForge.Infrastructure/Persistence/Migrations/`; depends on T012 and T005; verify migration SQL matches the approved ten-table model and receives human review before use; P0 boundary: migrations are reviewed artifacts, not an authorization to expand schema or implement P1 workflows.
-- [ ] T014 [P] Implement approved reference-data seeding in `src/ServiceForge.Infrastructure/Persistence/Seed/`; depends on T011 and T012; verify seeded customers, vehicles, dealerships/timezones, service types/durations, technicians, bays, qualifications, and compatibilities support demonstration scenarios; P0 boundary: seed only approved demonstration data and no direct dealership-service catalog.
-- [ ] T015 [P] Establish SQL Server Testcontainers infrastructure and schema validation in `tests/ServiceForge.Infrastructure.IntegrationTests/` and `tests/ServiceForge.Api.IntegrationTests/`; depends on T008 and T012; verify real SQL Server startup, schema application, ten-table count, constraints, indexes, and clean test isolation; P0 boundary: EF Core InMemory is not proof of SQL Server behavior.
+- [x] T011 Implement the EF Core DbContext and entity mappings in `src/ServiceForge.Infrastructure/Persistence/ServiceForgeDbContext.cs` and `src/ServiceForge.Infrastructure/Persistence/Configurations/`; depends on T008 and T009; verify exactly Customer, Vehicle, Dealership, ServiceType, Technician, ServiceBay, TechnicianQualification, BayServiceCompatibility, Appointment, and IdempotencyRecord are mapped; P0 boundary: no DealershipServiceType table and no extra persistence table.
+- [x] T012 Implement composite foreign keys, checks, indexes, and non-cascading relationships in `src/ServiceForge.Infrastructure/Persistence/Configurations/`; depends on T011; verify `(VehicleId, CustomerId)`, `(TechnicianId, DealershipId)`, `(ServiceBayId, DealershipId)`, interval/duration/status/assignment/completion checks, conflict-search indexes, and no cascade deletes; P0 boundary: no overlap trigger or exclusion constraint.
+- [x] T013 Generate and review EF Core Code First migrations in `src/ServiceForge.Infrastructure/Persistence/Migrations/`; depends on T012 and T005; verify migration SQL matches the approved ten-table model and receives human review before use; P0 boundary: migrations are reviewed artifacts, not an authorization to expand schema or implement P1 workflows.
+- [x] T014 [P] Implement approved reference-data seeding in `src/ServiceForge.Infrastructure/Persistence/Seed/`; depends on T011 and T012; verify seeded customers, vehicles, dealerships/timezones, service types/durations, technicians, bays, qualifications, and compatibilities support demonstration scenarios; P0 boundary: seed only approved demonstration data and no direct dealership-service catalog.
+- [x] T015 [P] Establish dedicated local SQL Server integration infrastructure and schema validation in `tests/ServiceForge.Infrastructure.IntegrationTests/`; depends on T008 and T012; verify real SQL Server connectivity through `SERVICEFORGE_TEST_SQLSERVER_CONNECTION`, schema application, ten-table count, constraints, indexes, READ_COMMITTED_SNAPSHOT OFF, and clean test isolation; P0 boundary: EF Core InMemory and SQLite are not proof of SQL Server behavior.
 
 ## Phase D: Booking business rules
 
@@ -66,7 +66,7 @@ criteria, and explicit P0 boundary.
 - [ ] T024 Implement idempotency replay, conflict, and expiry behavior in `src/ServiceForge.Application/Appointments/Idempotency/` and `src/ServiceForge.Infrastructure/Persistence/`; depends on T021, T022, and T023; verify the existing unexpired record is checked immediately after the idempotency lock, matching requests replay without vehicle/dealership locks, mismatched requests return `IDEMPOTENCY_KEY_CONFLICT`, and expired keys can be reused atomically; Coverage: US5; P0 boundary: retain successful results for 24 hours and never modify the original appointment during reuse.
 - [ ] T025 Implement atomic appointment and idempotency persistence in `src/ServiceForge.Infrastructure/Persistence/Repositories/` and `src/ServiceForge.Application/Appointments/`; depends on T018, T020, T023, and T024; verify one fully assigned Confirmed appointment and successful idempotency response commit together, rollback preserves prior records, and uncertain commit outcomes remain uncertain; Coverage: US1/US4/US5; P0 boundary: no separately committed Processing record.
 - [ ] T026 Implement booking command orchestration and approved error mapping in `src/ServiceForge.Application/Appointments/CreateAppointment/` and `src/ServiceForge.Api/ProblemDetails/`; depends on T016–T025; verify early validation is followed by mutable-state revalidation under locks, all approved business codes map to the contract, and POST returns 201/Location on success; Coverage: US1–US5; P0 boundary: no new error codes or endpoints.
-- [ ] T027 Implement controlled concurrency and rollback tests in `tests/ServiceForge.Infrastructure.IntegrationTests/Appointments/` and `tests/ServiceForge.Api.IntegrationTests/Appointments/`; depends on T015 and T023–T026; verify separate connections cover vehicle/resource conflicts, same-key contention, lock timeouts, deadlock mapping, atomic rollback, expired-key replacement, and lost-response retry; Coverage: US4/US5; P0 boundary: use real SQL Server/Testcontainers, not EF Core InMemory proof.
+- [ ] T027 Implement controlled concurrency and rollback tests in `tests/ServiceForge.Infrastructure.IntegrationTests/Appointments/` and `tests/ServiceForge.Api.IntegrationTests/Appointments/`; depends on T015 and T023–T026; verify separate connections cover vehicle/resource conflicts, same-key contention, lock timeouts, deadlock mapping, atomic rollback, expired-key replacement, and lost-response retry; Coverage: US4/US5; P0 boundary: use real SQL Server, not EF Core InMemory or SQLite proof.
 
 ## Phase F: API endpoints
 
@@ -85,15 +85,14 @@ criteria, and explicit P0 boundary.
 - [ ] T033 Implement API integration tests using `WebApplicationFactory` in `tests/ServiceForge.Api.IntegrationTests/`; depends on T028–T031 and T015; verify all five endpoints, HTTP contracts, Problem Details, Location header, UTC response data, pagination, and P0 exclusions; Coverage: US1/US5/US6; P0 boundary: no authentication/JWT tests because authentication is excluded from P0.
 - [ ] T034 Verify all 24 mandatory acceptance scenarios in `tests/ServiceForge.UnitTests/`, `tests/ServiceForge.Api.IntegrationTests/`, and `tests/ServiceForge.Infrastructure.IntegrationTests/`; depends on T027, T032, and T033; verify successful assignment, resource fallback/errors, ownership, cross-dealership conflicts, adjacency, time boundaries, horizon/DST, concurrency, idempotency, rollback, pagination, and Problem Details; Coverage: US1–US6; P0 boundary: do not add P1 lifecycle scenarios.
 - [ ] T035 Execute the full regression suite and correct failures in the affected `src/` and `tests/` paths; depends on T034; verify the complete suite actually runs and all corrections remain traceable to approved requirements; P0 boundary: do not weaken tests, bypass SQL Server verification, or introduce unapproved behavior.
-- [ ] T036 Write README, setup instructions, and architectural tradeoffs in `README.md` and `docs/`; depends on T035; verify setup documents `net10.0`, SQL Server/Testcontainers prerequisites, Spec Kit feature context, lock/idempotency limitations, and no unauthorized infrastructure assumptions; P0 boundary: documentation only and no Docker configuration unless separately authorized.
+- [ ] T036 Write README, setup instructions, and architectural tradeoffs in `README.md` and `docs/`; depends on T035; verify setup documents `net10.0`, dedicated local SQL Server prerequisites, Spec Kit feature context, lock/idempotency limitations, and no unauthorized infrastructure assumptions; P0 boundary: documentation only and no Docker configuration unless separately authorized.
 - [ ] T037 Complete final submission readiness review and Git checkpoint in `docs/ai-development-log.md`, the approved artifacts, and Git metadata; depends on T005 and T036; verify requirements traceability, executed verification evidence, clean diff, no unexpected files, and explicit implementation authorization status before release; P0 boundary: do not claim completion or authorization without human approval.
 
 ## Dependencies and Execution Order
 
 ### Phase dependencies
 
-- Phase A documentation tasks T001–T004 are complete; T005 is a required human authorization gate and
-  remains pending.
+- Phase A documentation tasks T001–T004 are complete; T005 is the completed human authorization gate.
 - Phase B tasks T006–T010 depend on T005 and block all application implementation work that follows.
 - Phase C tasks depend on the solution foundation; T011–T012 block persistence-dependent work, while
   T014 and T015 can proceed after their stated prerequisites.
@@ -127,7 +126,7 @@ after their listed prerequisites without editing the same primary artifacts. No 
 ## Parallel Execution Opportunities
 
 - After T007, T009 can proceed independently of T008’s package/configuration work.
-- After T011–T012, T014 reference-data seeding and T015 Testcontainers schema validation can proceed
+- After T011–T012, T014 reference-data seeding and T015 local SQL Server schema validation can proceed
   in parallel.
 - After T016, T017 and T018 can proceed in parallel; T019 follows the persistence/resource foundation.
 - After T021, T022 can proceed in parallel before T023 combines clock, hash, and persistence behavior.
@@ -168,8 +167,9 @@ considered complete without the approved conflict and idempotency guarantees tha
 
 - Completed `[x]` tasks record previously verified documentation work; they do not authorize source
   implementation.
-- T005 records explicit authorization for the T006-T010 implementation batch. T011-T037 remain
-  pending and require their own implementation sequencing and verification.
+- T005 records the implementation authorization gate. The current T011-T015 authorization is
+  separately recorded in the AI development log.
+- T015 uses the explicitly authorized local SQL Server path and has completed real database verification.
 - No task creates Angular, Playwright, authentication/JWT, P1 lifecycle workflows, microservices,
   message queues, migrations without review, Docker configuration, or runtime infrastructure without
   separate authorization.

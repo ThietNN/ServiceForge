@@ -51,18 +51,18 @@ public sealed class Appointment
         CreatedAtUtc = createdAtUtc;
     }
 
-    public long Id { get; }
-    public long CustomerId { get; }
-    public long VehicleId { get; }
-    public long DealershipId { get; }
-    public long ServiceTypeId { get; }
-    public long? TechnicianId { get; }
-    public long? ServiceBayId { get; }
-    public DateTime ScheduledStartUtc { get; }
-    public DateTime ScheduledEndUtc { get; }
-    public int DurationMinutes { get; }
-    public AppointmentStatus Status { get; }
-    public AssignmentStatus AssignmentStatus { get; }
-    public DateTime? ActualCompletedAtUtc { get; }
-    public DateTime CreatedAtUtc { get; }
+public long Id { get; private set; }
+public long CustomerId { get; private set; }
+public long VehicleId { get; private set; }
+public long DealershipId { get; private set; }
+public long ServiceTypeId { get; private set; }
+public long? TechnicianId { get; private set; }
+public long? ServiceBayId { get; private set; }
+public DateTime ScheduledStartUtc { get; private set; }
+public DateTime ScheduledEndUtc { get; private set; }
+public int DurationMinutes { get; private set; }
+public AppointmentStatus Status { get; private set; }
+public AssignmentStatus AssignmentStatus { get; private set; }
+public DateTime? ActualCompletedAtUtc { get; private set; }
+public DateTime CreatedAtUtc { get; private set; }
 }

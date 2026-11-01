@@ -27,11 +27,11 @@ public sealed class IdempotencyRecord
         ExpiresAtUtc = expiresAtUtc;
     }
 
-    public string Key { get; }
-    public byte[] RequestHash { get; }
-    public long AppointmentId { get; }
-    public short ResponseStatusCode { get; }
-    public string ResponseBody { get; }
-    public DateTime CreatedAtUtc { get; }
-    public DateTime ExpiresAtUtc { get; }
+public string Key { get; private set; }
+public byte[] RequestHash { get; private set; }
+public long AppointmentId { get; private set; }
+public short ResponseStatusCode { get; private set; }
+public string ResponseBody { get; private set; }
+public DateTime CreatedAtUtc { get; private set; }
+public DateTime ExpiresAtUtc { get; private set; }
 }

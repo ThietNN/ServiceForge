@@ -12,7 +12,7 @@ public sealed class Customer
         CreatedAtUtc = createdAtUtc;
     }
 
-    public long Id { get; }
-    public string Name { get; }
-    public DateTime CreatedAtUtc { get; }
+public long Id { get; private set; }
+public string Name { get; private set; }
+public DateTime CreatedAtUtc { get; private set; }
 }
