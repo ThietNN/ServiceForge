@@ -48,3 +48,58 @@
   requirements, and all 24 mandatory acceptance scenarios; checked the corrected priority and
   concurrency wording; verified the requirements checklist remains included; ran `git diff --check`.
 - Unresolved questions: None.
+
+## T002C — Architecture plan and approved data model
+
+- Date: 2026-11-01
+- AI assistance: OpenAI Codex using the repository's `speckit-plan` workflow guidance.
+- Scope: Created `specs/001-service-booking/plan.md` and `specs/001-service-booking/data-model.md`
+  from the approved constitution, feature specification, checklist, and T002C instructions. The plan
+  documents the four-project architecture, dependency direction, booking transaction workflow, API
+  behavior, test strategy, sequencing, tradeoffs, and limitations. The data model documents exactly
+  the ten approved tables without adding a DealershipServiceType relationship.
+- Verification performed: Inspected all approved source documents and official Spec Kit templates;
+  checked that no extension hooks were configured; resolved the official plan template successfully;
+  verified the plan contains the approved architecture and lock workflow; verified the data model
+  contains exactly ten tables, all supplied fields, keys, foreign keys, checks, indexes, nullable
+  resource fields, no-cascade-delete rules, and no Processing state; checked P0/P1 boundaries and
+  consistency with the constitution and feature specification; ran documentation checks and
+  `git diff --check`.
+- Unresolved questions: The approved requirements do not specify a target .NET version or numeric
+  performance target; the plan records both as unspecified rather than inventing decisions.
+
+## T002C.1 — Spec Kit resolution investigation and reviewed plan/model refinement
+
+- Date: 2026-11-01
+- AI assistance: OpenAI Codex using the repository's `speckit-plan` workflow guidance.
+- Scope: Investigated the installed Spec Kit CLI and PowerShell path-resolution implementation;
+  refined the booking workflow so matching idempotent replays avoid unnecessary vehicle/dealership
+  locks; documented reviewed EF Core Code First migrations; selected `net10.0` from the inspected
+  SDK/runtime and official support status; corrected Appointment-to-IdempotencyRecord cardinality to
+  at most one; no application or runtime artifacts were created.
+- Verification performed: Confirmed Specify CLI 1.2.5; inspected `setup-plan.ps1`, `common.ps1`, and
+  `create-new-feature.ps1`; reproduced the missing-feature-context error and verified explicit
+  `SPECIFY_FEATURE_DIRECTORY` resolution with `SPECIFY_FEATURE_NO_PERSIST=1` without creating
+  `.specify/feature.json`; ran `dotnet --info` and `dotnet --list-sdks`; checked for `global.json`;
+  reviewed plan/model consistency against the constitution and specification; ran `git diff --check`.
+- Unresolved questions: Exact package versions and compatibility checks remain implementation-time
+  work. No numeric performance target is specified.
+
+## T002C.2 — Final architecture design verification
+
+- Date: 2026-11-01
+- AI assistance: OpenAI Codex.
+- Scope: Recorded the verified Spec Kit feature-resolution root cause and supported invocation for
+  shells without persisted feature context:
+  `$env:SPECIFY_FEATURE_DIRECTORY = "specs/001-service-booking"` and
+  `$env:SPECIFY_FEATURE_NO_PERSIST = "1"`.
+- Resolution note: `SPECIFY_FEATURE_DIRECTORY` supplies the active feature directory when no
+  persisted feature context is available. `SPECIFY_FEATURE_NO_PERSIST=1` is for read-only diagnostics
+  and prevents the resolver from creating or updating `.specify/feature.json`; it is not required for
+  normal persisted workflow use. No `.specify/feature.json` was created and no official Spec Kit
+  script was modified.
+- Verification performed: Confirmed branch `main`, configured `origin`, presence of the T002C plan,
+  data model, and log; verified the approved architecture, ten-table schema, transaction and
+  idempotency workflow, composite foreign keys, indexes, P0/P1 boundaries, and no unexpected files;
+  ran documentation consistency checks and `git diff --check`.
+- Unresolved questions: None for the approved architecture design checkpoint.
