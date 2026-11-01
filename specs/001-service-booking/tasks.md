@@ -11,7 +11,7 @@ description: "Approved implementation task breakdown for ServiceForge P0 service
 and ADRs 001–007.
 
 **Scope**: Backend-only P0 automotive service booking. T005 records the authorization gate; the
-current user authorization covers the T011-T015 persistence batch.
+current user authorization covers the T016-T020 business-rules batch.
 
 **Task format**: Every task includes its ID, dependencies, relevant paths or artifacts, verification
 criteria, and explicit P0 boundary.
@@ -50,11 +50,11 @@ criteria, and explicit P0 boundary.
 
 **Purpose**: Implement deterministic P0 booking validation, ownership, conflict, eligibility, and selection rules.
 
-- [ ] T016 [P] Implement canonical booking-time normalization and validation in `src/ServiceForge.Application/Appointments/Validation/` and `src/ServiceForge.Domain/Time/`; depends on T010 and T011; verify explicit ISO 8601 offset, whole-minute start, strictly-future SQL Server UTC comparison, positive duration, elapsed UTC end calculation, and duration snapshot rules; Coverage: US1/US3; P0 boundary: no holiday calendar or minimum advance notice.
-- [ ] T017 [P] Implement dealership-local operating-hours and calendar-year horizon rules in `src/ServiceForge.Application/Appointments/Validation/` and `src/ServiceForge.Domain/Time/`; depends on T016 and dealership timezone mapping from T011; verify Monday–Friday 09:00–17:00, weekend closure, exact 17:00 end, inclusive one-local-year horizon, February 29 fallback, and DST behavior; Coverage: US1/US3; P0 boundary: no holidays or P1 scheduling workflows.
-- [ ] T018 [P] Implement vehicle ownership and cross-dealership overlap checks in `src/ServiceForge.Application/Appointments/Rules/` and `src/ServiceForge.Infrastructure/Persistence/Queries/`; depends on T012 and T016; verify one-owner vehicle enforcement, customer ownership validation, half-open overlap detection, and global vehicle checks; Coverage: US1/US4; P0 boundary: no travel time or resource buffers.
-- [ ] T019 [P] Implement technician qualification, bay compatibility, and availability queries in `src/ServiceForge.Infrastructure/Persistence/Queries/` and `src/ServiceForge.Application/Appointments/Rules/`; depends on T012, T016, and T017; verify active dealership ownership, many-to-many qualification/compatibility, full-interval availability, and approved no-resource errors; Coverage: US2; P0 boundary: no DealershipServiceType relationship or reassignment workflow.
-- [ ] T020 Implement deterministic lowest-ID resource selection in `src/ServiceForge.Application/Appointments/Allocation/`; depends on T019; verify technician and bay are selected independently, occupied low-ID resources fall through to the next available eligible resource, and both resources are required for P0 assignment; Coverage: US1/US2; P0 boundary: customers never choose resources and no scheduling optimization is added.
+- [x] T016 [P] Implement canonical booking-time normalization and validation in `src/ServiceForge.Application/Appointments/Validation/` and `src/ServiceForge.Domain/Time/`; depends on T010 and T011; verify explicit ISO 8601 offset, whole-minute start, strictly-future SQL Server UTC comparison, positive duration, elapsed UTC end calculation, and duration snapshot rules; Coverage: US1/US3; P0 boundary: no holiday calendar or minimum advance notice.
+- [x] T017 [P] Implement dealership-local operating-hours and calendar-year horizon rules in `src/ServiceForge.Application/Appointments/Validation/` and `src/ServiceForge.Domain/Time/`; depends on T016 and dealership timezone mapping from T011; verify Monday–Friday 09:00–17:00, weekend closure, exact 17:00 end, inclusive one-local-year horizon, February 29 fallback, and DST behavior; Coverage: US1/US3; P0 boundary: no holidays or P1 scheduling workflows.
+- [x] T018 [P] Implement vehicle ownership and cross-dealership overlap checks in `src/ServiceForge.Application/Appointments/Rules/` and `src/ServiceForge.Infrastructure/Persistence/Queries/`; depends on T012 and T016; verify one-owner vehicle enforcement, customer ownership validation, half-open overlap detection, and global vehicle checks; Coverage: US1/US4; P0 boundary: no travel time or resource buffers.
+- [x] T019 [P] Implement technician qualification, bay compatibility, and availability queries in `src/ServiceForge.Infrastructure/Persistence/Queries/` and `src/ServiceForge.Application/Appointments/Rules/`; depends on T012, T016, and T017; verify active dealership ownership, many-to-many qualification/compatibility, full-interval availability, and approved no-resource errors; Coverage: US2; P0 boundary: no DealershipServiceType relationship or reassignment workflow.
+- [x] T020 Implement deterministic lowest-ID resource selection in `src/ServiceForge.Application/Appointments/Allocation/`; depends on T019; verify technician and bay are selected independently, occupied low-ID resources fall through to the next available eligible resource, and both resources are required for P0 assignment; Coverage: US1/US2; P0 boundary: customers never choose resources and no scheduling optimization is added.
 
 ## Phase E: Transaction and idempotency
 
@@ -170,6 +170,7 @@ considered complete without the approved conflict and idempotency guarantees tha
 - T005 records the implementation authorization gate. The current T011-T015 authorization is
   separately recorded in the AI development log.
 - T015 uses the explicitly authorized local SQL Server path and has completed real database verification.
+- The current T016-T020 authorization is recorded in the AI development log; T021-T037 remain pending.
 - No task creates Angular, Playwright, authentication/JWT, P1 lifecycle workflows, microservices,
   message queues, migrations without review, Docker configuration, or runtime infrastructure without
   separate authorization.

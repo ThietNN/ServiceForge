@@ -214,3 +214,24 @@
   SqlClient resolution, and `git diff --check`.
 - Unresolved questions: None for T015. Later concurrency and booking behavior remain scheduled for
   T016 and later tasks.
+
+## T016-T020 — Booking business rules and resource selection
+
+- Date: 2026-11-02
+- AI assistance: OpenAI Codex using the repository's `speckit-implement` workflow guidance.
+- Authorization: The user explicitly authorized P0 implementation of T016-T020 on 2026-11-02.
+- Scope: Added UTC booking-time normalization using the existing authoritative-clock abstraction;
+  dealership-local weekday operating hours, inclusive calendar-year horizon, leap-day handling, and
+  instant-based timezone conversion; vehicle ownership and half-open occupied-overlap rules; EF Core
+  queries for ownership, cross-dealership vehicle conflicts, technician qualification, bay compatibility,
+  active resources, and full-interval availability; and deterministic independent lowest-ID technician
+  and bay allocation. No T021+ transaction, idempotency, SQL-lock, HTTP, or P1 behavior was added.
+- Verification performed: Added focused unit coverage for explicit offsets, whole-minute precision,
+  UTC conversion, strict future validation, half-open adjacency, operating-hour/weekend boundaries,
+  inclusive horizon and leap-day behavior, ownership, cancellation occupancy, error distinctions, and
+  deterministic allocation. Added local SQL Server integration coverage for ownership, cross-dealership
+  conflicts, adjacent intervals, independent vehicles, qualifications, compatibility, inactive and
+  occupied resources, fallback selection, and approved unavailable-resource errors. Ran the unit suite
+  with 19 passing tests and the SQL Server integration suite with 6 passing tests; build completed with
+  zero warnings and errors.
+- Unresolved questions: T021 and later transaction/idempotency/API work remains pending.
